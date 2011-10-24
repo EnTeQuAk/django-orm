@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from django_postgresql.fields.arrays import ArrayField
-from django_postgresql.fields.interval import IntervalField
-from django_postgresql.fields.bytea import ByteaField
-from django_postgresql.manager import PgManager
+from django_orm.postgresql.fields.arrays import ArrayField
+from django_orm.postgresql.fields.interval import IntervalField
+from django_orm.postgresql.fields.bytea import ByteaField
+from django_orm.postgresql.manager import PgManager
 
 class IntModel(models.Model):
     lista = ArrayField(dbtype='int')
@@ -31,9 +31,9 @@ class ByteaModel(models.Model):
     objects = PgManager()
 
 
-from django_postgresql.geometric.fields import PointField, CircleField
-from django_postgresql.geometric.fields import LsegField, BoxField
-from django_postgresql.geometric.fields import PathField, PolygonField
+from django_orm.postgresql.geometric.fields import PointField, CircleField
+from django_orm.postgresql.geometric.fields import LsegField, BoxField
+from django_orm.postgresql.geometric.fields import PathField, PolygonField
 
 class GeomModel(models.Model):
     pt = PointField()

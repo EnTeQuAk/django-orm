@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import connection
-from django_postgresql.aggregates import Unaccent
+from django_orm.postgresql.aggregates import Unaccent
 from django.utils.unittest import TestCase
 
 from .models import Person

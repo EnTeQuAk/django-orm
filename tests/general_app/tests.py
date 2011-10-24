@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.db import connection
-from django_postgresql.aggregates import Unaccent
-from django.utils.unittest import TestCase
+from django.test import TestCase
+
+from django_orm.postgresql.aggregates import Unaccent
+from django_orm.postgresql.geometric.objects import *
 
 from .models import IntModel, TextModel, DoubleModel, VarcharModel
 from .models import ByteaModel, IntervalModel, GeomModel
@@ -36,13 +38,13 @@ class DoublePrecisionArrayFieldTest(TestCase):
         self.assertEqual(result, [2.3,3.4])
 
     def test_double_array_aggregates_length(self):
-        from django_postgresql.aggregates import ArrayLength
+        from django_orm.postgresql.aggregates import ArrayLength
 
         qs = DoubleModel.objects.annotate(lista_length=ArrayLength('lista')).order_by('id')
         self.assertEqual(qs[0].lista_length, 5.0)
         
     def test_double_array_aggregates_length_sum(self):
-        from django_postgresql.aggregates import ArrayLength
+        from django_orm.postgresql.aggregates import ArrayLength
 
         result = DoubleModel.objects.aggregate(total_length=ArrayLength('lista', sum=True))
         self.assertEqual(result['total_length'], 12.0)
@@ -82,14 +84,14 @@ class IntArrayFieldTest(TestCase):
         self.assertEqual(result, [2,3,4])
 
     def test_int_array_aggregates_length(self):
-        from django_postgresql.aggregates import ArrayLength
+        from django_orm.postgresql.aggregates import ArrayLength
 
         qs = IntModel.objects.annotate(lista_length=ArrayLength('lista')).order_by('id')
         self.assertEqual(qs[0].lista_length, 5.0)
         self.assertEqual(qs[3].lista_length, 6.0)
         
     def test_int_array_aggregates_length_sum(self):
-        from django_postgresql.aggregates import ArrayLength
+        from django_orm.postgresql.aggregates import ArrayLength
 
         result = IntModel.objects.aggregate(total_length=ArrayLength('lista', sum=True))
         self.assertEqual(result['total_length'], 30)
@@ -126,13 +128,13 @@ class TextArrayFieldTest(TestCase):
         self.assertEqual(result, [u'привет', u'моя'])
 
     def test_text_array_aggregates_length(self):
-        from django_postgresql.aggregates import ArrayLength
+        from django_orm.postgresql.aggregates import ArrayLength
 
         qs = TextModel.objects.annotate(lista_length=ArrayLength('lista')).order_by('id')
         self.assertEqual(qs[0].lista_length, 2.0)
         
     def test_text_array_aggregates_length_sum(self):
-        from django_postgresql.aggregates import ArrayLength
+        from django_orm.postgresql.aggregates import ArrayLength
 
         result = TextModel.objects.aggregate(total_length=ArrayLength('lista', sum=True))
         self.assertEqual(result['total_length'], 7)
@@ -170,13 +172,13 @@ class VarcharArrayFieldTest(TestCase):
         self.assertEqual(result, [u'привет', u'моя'])
 
     def test_varchar_array_aggregates_length(self):
-        from django_postgresql.aggregates import ArrayLength
+        from django_orm.postgresql.aggregates import ArrayLength
 
         qs = VarcharModel.objects.annotate(lista_length=ArrayLength('lista')).order_by('id')
         self.assertEqual(qs[0].lista_length, 2.0)
         
     def test_varchar_array_aggregates_length_sum(self):
-        from django_postgresql.aggregates import ArrayLength
+        from django_orm.postgresql.aggregates import ArrayLength
 
         result = VarcharModel.objects.aggregate(total_length=ArrayLength('lista', sum=True))
         self.assertEqual(result['total_length'], 7)
@@ -224,7 +226,6 @@ class ByteaFieldTest(TestCase):
         obj = ByteaModel.objects.get(pk=obj.id)
         self.assertEqual(strhash, hashlib.sha256(obj.bb).hexdigest())
 
-from django_postgresql.geometric.objects import *
 
 class GeometricFieldsTest(TestCase):
     def setUp(self):

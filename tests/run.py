@@ -24,7 +24,7 @@ else:
 test_settings = {
     'DATABASES': {
         'default': {
-            'ENGINE':'django_postgresql.postgresql_psycopg2',
+            'ENGINE':'django_orm.backends.postgresql_psycopg2',
             'USER': db_user,
             'NAME': db_name,
             'HOST': '',

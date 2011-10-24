@@ -16,10 +16,8 @@ from django.conf import settings
 from django_orm.backends.postgresql_psycopg2.creation import DatabaseCreation
 from django_orm.backends.postgresql_psycopg2.operations import DatabaseOperations
 
-from django_orm.postgresql.pool import (
-    QueuePool, PersistentPool,
-    POOLTYPE_PERSISTENT, POOLTYPE_QUEUE
-)
+from django_orm.postgresql.pool import QueuePool, PersistentPool
+from django_orm import POOLTYPE_PERSISTENT, POOLTYPE_QUEUE
 
 import threading
 import datetime

@@ -2,6 +2,7 @@
 
 __version__ = (2, 0, 0, 'candidate', 1)
 
-from django_orm.pool import POOLTYPE_PERSISTENT, POOLTYPE_QUEUE
+POOLTYPE_PERSISTENT = 1
+POOLTYPE_QUEUE = 2
 
 __all__  = ['POOLTYPE_PERSISTENT', 'POOLTYPE_QUEUE']

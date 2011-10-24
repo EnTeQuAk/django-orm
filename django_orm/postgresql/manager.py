@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from django_postgresql.query import PgQuerySet
+from django_orm.postgresql.query import PgQuerySet
 
 class PgManager(models.Manager):
     use_for_related_fields = True

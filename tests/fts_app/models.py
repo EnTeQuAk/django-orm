@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-from django_postgresql.fts.fields import VectorField
-from django_postgresql.fts.manager import SearchManager
+from django_orm.postgresql.fts.fields import VectorField
+from django_orm.postgresql.fts.manager import SearchManager
 
 class Person(models.Model):
     name = models.CharField(max_length=32)

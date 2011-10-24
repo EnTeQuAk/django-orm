@@ -1,6 +1,6 @@
 
 from django.db import models
-from django_postgresql import hstore
+from django_orm.postgresql import hstore
 
 class Ref(models.Model):
     name = models.CharField(max_length=32)

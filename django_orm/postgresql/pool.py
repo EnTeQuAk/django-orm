@@ -4,8 +4,8 @@ from Queue import Queue
 import threading
 import psycopg2
 
-POOLTYPE_PERSISTENT = 1
-POOLTYPE_QUEUE = 2
+from django_orm import POOLTYPE_PERSISTENT, POOLTYPE_QUEUE
+
 
 class PoolError(Exception):
     pass
