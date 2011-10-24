@@ -33,12 +33,12 @@ Classes
 
 The library provides three principal classes:
 
-``django_postgresql.hstore.DictionaryField``
+``django_orm.postgresql.hstore.DictionaryField``
     An ORM field which stores a mapping of string key/value pairs in an hstore column.
-``django_postgresql.hstore.ReferencesField``
+``django_orm.postgresql.hstore.ReferencesField``
     An ORM field which builds on DictionaryField to store a mapping of string keys to
     django object references, much like ForeignKey.
-``django_postgresql.hstore.HStoreManager``
+``django_orm.postgresql.hstore.HStoreManager``
     An ORM manager which provides much of the query functionality of the library.
 
 
@@ -48,7 +48,7 @@ Example of model declaration:
 .. code-block:: python
 
     from django.db import models
-    from django_postgresql import hstore
+    from django_orm.postgresql import hstore
 
     class Something(models.Model):
         name = models.CharField(max_length=32)

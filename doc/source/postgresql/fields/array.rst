@@ -18,8 +18,8 @@ Usage in model declaration:
 .. code-block:: python
 
     from django.db import models
-    from django_postgresql.fields.arrays import ArrayField
-    from django_postgresql.manager import PgManager
+    from django_orm.postgresql.fields.arrays import ArrayField
+    from django_orm.postgresql.manager import PgManager
 
     class TestModel(models.Model):
         my_int_list = ArrayField(dbtype='int', null=True)
@@ -114,7 +114,7 @@ Array length annotate:
 
 .. code-block:: python 
 
-    >>> from django_postgresql.aggregates import ArrayLength
+    >>> from django_orm.postgresql.aggregates import ArrayLength
     >>> for item in TestModel.objects.annotate(lista_length=ArrayLength('my_int_list')):
     ...     print item.id, item.my_int_list, item.lista_length
     ... 

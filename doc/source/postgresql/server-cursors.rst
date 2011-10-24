@@ -11,7 +11,7 @@ Example usage:
 
 .. code-block:: python
 
-    from django_postgresql import server_side_cursors
+    from django_orm.postgresql import server_side_cursors
 
     qs = Model.objects.all()
     with server_side_cursors(qs, itersize=100):

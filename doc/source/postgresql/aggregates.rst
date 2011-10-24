@@ -11,7 +11,7 @@ Usage example:
 .. code-block:: python
 
     >>> from niwi.models import Post
-    >>> from django_postgresql.aggregates import Unaccent
+    >>> from django_orm.postgresql.aggregates import Unaccent
     >>> qs = Post.objects.annotate(title_unaccent=Unaccent('title')).filter(pk=15)
     >>> print qs[0].title
     Tipado estático en python.

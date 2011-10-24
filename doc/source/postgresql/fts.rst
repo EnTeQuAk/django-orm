@@ -12,10 +12,10 @@ similarity as the frequency of query words in the document. (`From postgresql do
 Currently these classes are implemented:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`django_postgresql.fts.fields.VectorField`
+`django_orm.postgresql.fts.fields.VectorField`
     An tsvector index field which stores converted text into special format.
 
-`django_postgresql.fts.manager.SearchManager`
+`django_orm.postgresql.fts.manager.SearchManager`
     Django manager that contains helper methods for search and re/genereate indexes.
 
 
@@ -26,8 +26,8 @@ To use it, you will need to add a new field and modifying one or the other metho
 
 .. code-block:: python
     
-    from django_postgresql.fts.manager import SearchManager
-    from django_postgresql.fts.fields import VectorField
+    from django_orm.postgresql.fts.manager import SearchManager
+    from django_orm.postgresql.fts.fields import VectorField
     from django.db import models
 
     class Page(models.Model):

@@ -14,8 +14,8 @@ This is a simple example of a model that contains this field.
 .. code-block:: python
 
     from django.db import models
-    from django_postgresql.fields.bytea import ByteaField
-    from django_postgresql.manager import PgManager
+    from django_orm.postgresql.fields.bytea import ByteaField
+    from django_orm.postgresql.manager import PgManager
 
     class TestModel(models.Model):
         bb = ByteaField()
