@@ -1,0 +1,13 @@
+#!/bin/sh
+
+PG90_PATH="/opt/pg90/bin"
+DB_NAME=${DB_NAME:-django_postgresql_test}
+DB_USER=${DB_USER:-$USER}
+DB_PORT="5432"
+
+$PG90_PATH/dropdb -p $DB_PORT -U "${DB_USER}" "${DB_NAME}"
+$PG90_PATH/createdb -p $DB_PORT -U "${DB_USER}" "${DB_NAME}"
+$PG90_PATH/psql -p $DB_PORT -U "${DB_USER}" "${DB_NAME}" -f $PG90_PATH/../share/postgresql/contrib/hstore.sql
+$PG90_PATH/psql -p $DB_PORT -U "${DB_USER}" "${DB_NAME}" -f $PG90_PATH/../share/postgresql/contrib/unaccent.sql
+
+DB_NAME=$DB_NAME DB_USER=$DB_USER DB_PORT=$DB_PORT python2 tests/run.py "$@"

@@ -1,0 +1,5 @@
+*.pyc
+.*swp
+doc/build
+dist
+django_postgresql.egg-info

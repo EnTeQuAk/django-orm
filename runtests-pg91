@@ -1,0 +1,11 @@
+#!/bin/sh
+
+DB_NAME=${DB_NAME:-django_postgresql_test}
+DB_USER=${DB_USER:-$USER}
+
+dropdb -U "${DB_USER}" "${DB_NAME}"
+createdb -U "${DB_USER}" "${DB_NAME}"
+psql -U "${DB_USER}" "${DB_NAME}" -c "create extension hstore;" -q
+psql -U "${DB_USER}" "${DB_NAME}" -c "create extension unaccent;" -q
+
+DB_NAME=$DB_NAME DB_USER=$DB_USER python2 tests/run.py "$@"
