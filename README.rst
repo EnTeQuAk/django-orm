@@ -3,10 +3,10 @@ django_orm
 
 Advanced improvement to django orm with third-party modules in one with some usefull features:
 
- * connection pool
- * postgresql server-sider cursors
- * postgresql native complex types
- * postgresql hstore and unaccent.
+* connection pool
+* postgresql server-sider cursors
+* postgresql native complex types
+* postgresql hstore and unaccent.
 
 
 * **Documentation for postgresql:** http://readthedocs.org/docs/django-postgresql/en/latest/
@@ -17,6 +17,15 @@ Notice
 Main motivation of this project is to unify what is done to django_postgresql and make it available, as far as is compatible with mysql and sqlite. And besides, add things specific to each database.
 
 **The future of the project django-postgresql continue on this project.**
+
+TODO (in development):
+----------------------
+
+* Connection pool integration for sqlite, mysql and postgresql.
+* ORM low level cache for all backends.
+* Some advanced features of mysql (suggestions welcome)
+* Unified documentation (actualy only for postgresql backend, imported from django-postgresql project)
+* Lock system for objects on all backends.
 
 Requirements:
 -------------
