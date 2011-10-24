@@ -16,8 +16,7 @@ Notice
 
 Main motivation of this project is to unify what is done to django_postgresql and make it available, as far as is compatible with mysql and sqlite. And besides, add things specific to each database.
 
-The project development will be integrated django-postgresql in it.
-
+**The future of the project django-postgresql continue on this project.**
 
 Requirements:
 -------------
