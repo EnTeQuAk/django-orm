@@ -2,7 +2,11 @@
 
 from Queue import Queue
 import threading
-import psycopg2
+
+import MySQLdb as Database
+
+DatabaseError = Database.DatabaseError
+IntegrityError = Database.IntegrityError
 
 from django_orm import POOLTYPE_PERSISTENT, POOLTYPE_QUEUE
 from django_orm.basepool import BaseQueuePool, BasePersistentPool
@@ -16,12 +20,14 @@ class QueuePool(BaseQueuePool):
         Method for make a new database connection
         and set correct timezone and client encoding..
         """
-        conn = psycopg2.connect(**self.dbparams)
-        conn.set_client_encoding('UTF8')
-        conn.set_isolation_level(self._isolation_level)
+        from django.utils.safestring import SafeString, SafeUnicode
 
+        conn = Database.connect(**self.dbparams)
+        conn.encoders[SafeUnicode] = conn.encoders[unicode]
+        conn.encoders[SafeString] = conn.encoders[str]
+        
         cursor = conn.cursor()
-        cursor.execute("SET TIME ZONE %s", [self._settings['TIME_ZONE']])
+        cursor.execute("SET SQL_AUTO_IS_NULL = 0")
         cursor.close()
         return conn
 
@@ -35,9 +41,10 @@ class QueuePool(BaseQueuePool):
         :rtype: bool
         """
         try:
-            connection.cursor().execute("SELECT 1;")
+            connection.ping()
             return True
-        except psycopg2.OperationalError:
+        except DatabaseError:
+            connection.close()
             return False
 
 
