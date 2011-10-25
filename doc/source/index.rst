@@ -13,19 +13,28 @@ independently if you want one or more of them.
 I certainly do not want to take all the credit, because not all the work I have done, however if you'll take care of having 
 a single integrated package with a stable api and covers the most popular databases: postgresql, mysql and sqlite3.
 
-This is an evolution of the project django-postgresql. So do not limit myself to a single database and applied some 
+This is an evolution of the project **django-postgresql**. So do not limit myself to a single database and applied some 
 improvements to all backends.
 
 **NOTE**: Currently only suports the postgresql backend: ``django_orm.backends.postgresql_psycopg2``.
 
 
 Table of Contents:
+------------------
 
 .. toctree::
    :maxdepth: 1
     
-   pool.rst
+   orm-pool.rst
    orm-cache.rst
+   orm-indexes.rst
+
+Database specific documentation:
+--------------------------------
+
+.. toctree::
+   :maxdepth: 1
+
    mysql.rst
    sqlite.rst
    postgresql/index.rst

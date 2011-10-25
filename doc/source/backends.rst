@@ -1,4 +1,0 @@
-Django-orm backends.
-====================
-
-TODO
