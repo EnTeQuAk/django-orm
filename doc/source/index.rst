@@ -18,6 +18,38 @@ improvements to all backends.
 
 **NOTE**: Currently only suports the postgresql backend: ``django_orm.backends.postgresql_psycopg2``.
 
+Summary of characteristics (current and future)
+-----------------------------------------------
+
+Supported backends:
+^^^^^^^^^^^^^^^^^^^
+
+* PostgreSQL 9.x: ``django_orm.backends.postgresql_psycopg2``
+* MySQL 5.1 (in development): ``django_orm.backends.mysql``
+* SQLite (in development): ``django_orm.backends.sqlite3``
+
+Generic features:
+^^^^^^^^^^^^^^^^^
+
+* Connection Pool.
+* Low level orm cache (not implemented)
+* Object level lock (not implemented)
+* Own statements of indices for the model (in development)
+
+PostgreSQL specific features:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* HStore
+* Full Text Search
+* Unaccent
+* Server side cursors
+* Native types with full query lookups:
+
+  - Arrays
+  - Intervals
+  - Bytea
+  - Geometric (box, line, path, polygon, point, circle)
+
 
 Table of Contents:
 ------------------
@@ -28,6 +60,7 @@ Table of Contents:
    orm-pool.rst
    orm-cache.rst
    orm-indexes.rst
+
 
 Database specific documentation:
 --------------------------------

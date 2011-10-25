@@ -2,4 +2,6 @@
 .*swp
 doc/build
 dist
-django_postgresql.egg-info
+django_orm.egg-info
+versiontools*
+build*

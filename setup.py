@@ -3,15 +3,15 @@ from setuptools import setup, find_packages
 description="""
 Advanced improvement of django-orm with a lot of third-party plugins for use different parts of databases are
 not covered by the standard orm. 
-
-Currently the only supported what was django-postgresql. Currently the only supported what was
-django-postgresql. But I'm working for some features available for all supported backends (postgresql, sqlite,
-mysql), as orm connection-pool and low-level cache.
-
-If you want to know in detail what it offers for each database, check the documentation.
 """
 
 long_description = """
+Currently the only supported what was django-postgresql. 
+But I'm working for some features available for all supported backends (postgresql, sqlite,
+mysql), as orm connection-pool and low-level cache.
+
+If you want to know in detail what it offers for each database, check the documentation.
+
 * **Documentation**: http://readthedocs.org/docs/django-orm/en/latest/
 * **Project page**: http://www.niwi.be/post/project-django-orm/
 """
@@ -19,7 +19,6 @@ long_description = """
 
 setup(
     name="django-orm",
-    #version="1.6",
     version=':versiontools:django_orm:',
     url='https://github.com/niwibe/django-orm',
     license='BSD',
@@ -35,6 +34,7 @@ setup(
         'django_orm.postgresql.fts',
         'django_orm.postgresql.fields',
         'django_orm.postgresql.hstore',
+        'django_orm.postgresql.geometric',
         'django_orm.backends',
         'django_orm.backends.postgresql_psycopg2',
     ],
