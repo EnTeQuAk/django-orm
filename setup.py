@@ -1,22 +1,27 @@
 from setuptools import setup, find_packages
 
 description="""
-Advanced improvement of postgresql_psycopg2 django-orm 
-backend with: connection pool, server-side cursors, native complex types,
-hstore and unaccent aggregates.
+Advanced improvement of django-orm with a lot of third-party plugins for use different parts of databases are
+not covered by the standard orm. 
+
+Currently the only supported what was django-postgresql. Currently the only supported what was
+django-postgresql. But I'm working for some features available for all supported backends (postgresql, sqlite,
+mysql), as orm connection-pool and low-level cache.
+
+If you want to know in detail what it offers for each database, check the documentation.
 """
 
 long_description = """
-* **Documentation**: http://readthedocs.org/docs/django-postgresql/en/latest/
-* **Project page**: http://www.niwi.be/post/project-django-postgresql/
+* **Documentation**: http://readthedocs.org/docs/django-orm/en/latest/
+* **Project page**: http://www.niwi.be/post/project-django-orm/
 """
 
 
 setup(
-    name="django-postgresql",
+    name="django-orm",
     #version="1.6",
-    version=':versiontools:django_postgresql:',
-    url='https://github.com/niwibe/django-postgresql',
+    version=':versiontools:django_orm:',
+    url='https://github.com/niwibe/django-orm',
     license='BSD',
     platforms=['OS Independent'],
     description = description.strip(),
@@ -26,11 +31,12 @@ setup(
     maintainer = 'Andrei Antoukh',
     maintainer_email = 'niwi@niwi.be',
     packages = [
-        'django_postgresql',
-        'django_postgresql.fts',
-        'django_postgresql.fields',
-        'django_postgresql.hstore',
-        'django_postgresql.postgresql_psycopg2',
+        'django_orm.postgresql',
+        'django_orm.postgresql.fts',
+        'django_orm.postgresql.fields',
+        'django_orm.postgresql.hstore',
+        'django_orm.backends',
+        'django_orm.backends.postgresql_psycopg2',
     ],
     include_package_data = True,
     install_requires=[
