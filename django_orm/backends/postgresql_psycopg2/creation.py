@@ -7,7 +7,7 @@ if VERSION[:2] > (1,3):
     from django.db.backends.postgresql_psycopg2.creation \
         import DatabaseCreation as BaseDatabaseCreation
 else:
-    from django.db.backends.postgresql.creation \
+    from django.db.backends.postgresql_psycopg2.base \
         import DatabaseCreation as BaseDatabaseCreation
 
 import logging
