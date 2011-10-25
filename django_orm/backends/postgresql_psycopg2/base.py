@@ -163,9 +163,6 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         self._register()
         return CursorWrapper(cursor)
 
-    def make_debug_cursor(self, cursor):
-        return utils.CursorDebugWrapper(cursor, self)
-    
     def _postgres_version(self):
         """
         Django 1.3 and django 1.4 compatibilyty method
