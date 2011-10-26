@@ -21,11 +21,11 @@ improvements to all backends.
 Summary of characteristics (current and future)
 -----------------------------------------------
 
-Supported backends:
-^^^^^^^^^^^^^^^^^^^
+Supported backends with connection pooling:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * PostgreSQL 9.x: ``django_orm.backends.postgresql_psycopg2``
-* MySQL 5.1 (in development): ``django_orm.backends.mysql``
+* MySQL 5.1: ``django_orm.backends.mysql``
 * SQLite (in development): ``django_orm.backends.sqlite3``
 
 Generic features:
