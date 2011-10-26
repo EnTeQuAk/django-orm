@@ -53,7 +53,7 @@ class BaseQueuePool(object):
         try:
             connection.cursor().execute("SELECT 1;")
             return True
-        except Exception e:
+        except Exception as e:
             print "WARNING: ignored exception:", str(e)
             return False
 
@@ -112,7 +112,7 @@ class BasePersistentPool(BaseQueuePool):
     """
     
     def __init__(self, *args, **kwargs):
-        super(PersistentPool, self).__init__(*args, **kwargs)
+        super(BasePersistentPool, self).__init__(*args, **kwargs)
         self._pool = {}
 
     def _getconn(self):

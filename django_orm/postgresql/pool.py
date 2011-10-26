@@ -55,4 +55,31 @@ class PersistentPool(BasePersistentPool):
     In most of my tests with django, only one 
     connection is maintained by thread.
     """
-    pass
+    def _connect(self):
+        """
+        Method for make a new database connection
+        and set correct timezone and client encoding..
+        """
+        conn = psycopg2.connect(**self.dbparams)
+        conn.set_client_encoding('UTF8')
+        conn.set_isolation_level(self._isolation_level)
+
+        cursor = conn.cursor()
+        cursor.execute("SET TIME ZONE %s", [self._settings['TIME_ZONE']])
+        cursor.close()
+        return conn
+
+    def _try_connected(self, connection):
+        """
+        Try if connection object is connected
+        to a database.
+
+        :param psycopg.connection connection: db connection.
+        :returns: True or False
+        :rtype: bool
+        """
+        try:
+            connection.cursor().execute("SELECT 1;")
+            return True
+        except psycopg2.OperationalError:
+            return False
