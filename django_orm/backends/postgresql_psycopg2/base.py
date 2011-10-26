@@ -127,11 +127,3 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         if not hasattr(self, '_postgres_version'):
             self.__class__._postgres_version = get_version(self.connection)
         return self._postgres_version
-            
-
-
-from django.dispatch import receiver
-
-@receiver(connection_created)
-def my_callback(sender, connection, signal, **kwargs):
-    print "Connection created:", id(connection.connection)
