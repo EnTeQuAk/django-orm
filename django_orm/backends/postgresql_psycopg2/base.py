@@ -37,8 +37,8 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         super(DatabaseWrapper, self).__init__(*args, **kwargs)
         self.server_side_cursors = False
         self.server_side_cursor_itersize = None
-        #self.ops = DatabaseOperations(self)
-        #self.creation = DatabaseCreation(self)
+        self.ops = DatabaseOperations(self)
+        self.creation = DatabaseCreation(self)
 
     def _try_connected(self):
         """
@@ -62,8 +62,8 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         
         print "Connection closing:", id(self.connection)
         if not self.connection.closed:
-            self.connection.close()
-            #pool.putconn(self.connection)
+            #self.connection.close()
+            pool.putconn(self.connection)
         self.connection = None
 
     def _register(self):
@@ -85,9 +85,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         if not pool:
             poolclass = PersistentPool \
                 if pool_type == POOLTYPE_PERSISTENT else QueuePool
-
             pool = poolclass(self.settings_dict)
-
         
         if self.connection is None:
             print 2
@@ -99,8 +97,6 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                 self.connection = None
 
         cursor = super(DatabaseWrapper, self)._cursor()
-        return cursor
-
         if self.server_side_cursors:
             cursor = self.connection.cursor(name='cur%s' %\
                 str(uuid.uuid4()).replace('-', ''))
