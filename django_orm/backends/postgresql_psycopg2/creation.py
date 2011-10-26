@@ -42,6 +42,17 @@ class DatabaseCreation(BaseDatabaseCreation):
         super(DatabaseCreation, self)._create_test_db(verbosity,autoclobber)
         self.install_hstore_contrib()
 
+    def sql_indexes_for_model(self, model, style):
+        output = super(DatabaseCreation, self).sql_indexes_for_model(model, style)
+        aditional_indexes = getattr(model, 'aditional_indexes', [])
+        if not isinstance(aditional_indexes, (list, tuple)):
+            raise Exception("aditional_indexes must be a list or tuple")
+        
+        for indexitem for aditional_indexes:
+            if indexitem.endswith(";"):
+                output.append(indexitem)
+        return output
+
     def sql_indexes_for_field(self, model, f, style):
         kwargs = VERSION[:2] >= (1, 3) and {'connection': self.connection} or {}
         if f.db_type(**kwargs) in ('hstore', 'tsvector'):
