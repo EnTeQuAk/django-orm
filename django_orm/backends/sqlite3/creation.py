@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.db.backends.mysql.creation import DatabaseCreation as BaseDatabaseCreation
+from django.db.backends.sqlite3.creation import DatabaseCreation as BaseDatabaseCreation
 
 class DatabaseCreation(BaseDatabaseCreation):
     def sql_indexes_for_model(self, model, style):

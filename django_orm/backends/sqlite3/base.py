@@ -3,12 +3,14 @@
 from django.db.backends.sqlite3.base import DatabaseWrapper as BaseDatabaseWrapper
 from django_orm.pool import QueuePool, PersistentPool
 from django_orm import POOLTYPE_PERSISTENT, POOLTYPE_QUEUE
+from django_orm.backends.sqlite3.creation import DatabaseCreation
 
 pool = None
 
 class DatabaseWrapper(BaseDatabaseWrapper):
     def __init__(self, *args, **kwargs):
         super(DatabaseWrapper, self).__init__(*args, **kwargs)
+        self.creation = DatabaseCreation(self)
         options = self.settings_dict.get('OPTIONS', {})
         self.pool_type = options.get('POOLTYPE', POOLTYPE_PERSISTENT)
         self.pool_enabled = options.pop('POOL_ENABLED', True)

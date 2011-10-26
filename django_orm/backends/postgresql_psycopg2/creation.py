@@ -44,11 +44,11 @@ class DatabaseCreation(BaseDatabaseCreation):
 
     def sql_indexes_for_model(self, model, style):
         output = super(DatabaseCreation, self).sql_indexes_for_model(model, style)
-        aditional_indexes = getattr(model, 'aditional_indexes', [])
-        if not isinstance(aditional_indexes, (list, tuple)):
+        additional_indexes = getattr(model, 'additional_indexes', [])
+        if not isinstance(additional_indexes, (list, tuple)):
             raise Exception("aditional_indexes must be a list or tuple")
         
-        for indexitem for aditional_indexes:
+        for indexitem in additional_indexes:
             if indexitem.endswith(";"):
                 output.append(indexitem)
         return output
