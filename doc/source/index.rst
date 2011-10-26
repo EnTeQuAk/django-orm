@@ -16,8 +16,6 @@ a single integrated package with a stable api and covers the most popular databa
 This is an evolution of the project **django-postgresql**. So do not limit myself to a single database and applied some 
 improvements to all backends.
 
-**NOTE**: Currently only suports the postgresql backend: ``django_orm.backends.postgresql_psycopg2``.
-
 Summary of characteristics (current and future)
 -----------------------------------------------
 
@@ -26,7 +24,7 @@ Supported backends with connection pooling:
 
 * PostgreSQL 9.x: ``django_orm.backends.postgresql_psycopg2``
 * MySQL 5.1: ``django_orm.backends.mysql``
-* SQLite (in development): ``django_orm.backends.sqlite3``
+* SQLite: ``django_orm.backends.sqlite3``
 
 Generic features:
 ^^^^^^^^^^^^^^^^^
@@ -60,6 +58,7 @@ Table of Contents:
    orm-pool.rst
    orm-cache.rst
    orm-indexes.rst
+   orm-settings.rst
 
 
 Database specific documentation:

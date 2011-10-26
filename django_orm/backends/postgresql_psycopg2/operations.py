@@ -3,11 +3,9 @@
 from django import VERSION
 
 if VERSION[:2] > (1,3):
-    print "operations 1.4"
     from django.db.backends.postgresql_psycopg2.operations \
         import DatabaseOperations as BaseDatabaseOperations
 else:
-    print "operations 1.3"
     from django.db.backends.postgresql_psycopg2.base \
         import DatabaseOperations as BaseDatabaseOperations
 

@@ -8,7 +8,7 @@ database is on a separate server.
 In the backend, incorporates 2 types of pooled connections: QueuePool 
 and PersistentPool (default).
 
-**NOTE**: Currently only suports the postgresql backend: ``django_orm.backends.postgresql_psycopg2``.
+**New**: Now supports backends: postgresql_psycopg2, mysql and sqlite3.
 
 Classes:
 ^^^^^^^^
@@ -27,7 +27,7 @@ only for QueuePool, default 10).
 
 .. code-block:: python
     
-    from django_orm. import POOLTYPE_QUEUE
+    from django_orm import POOLTYPE_QUEUE
 
     DATABASES = {
         'default': {
