@@ -38,3 +38,5 @@ Features:
 * PostgreSQL unaccent aggregation.
 * PostgreSQL Full Text Search.
 * Builtin connection pool. (PostgreSQL, MySQL, Sqlite3)
+* Additional indexes creation method from model. (PostgreSQL, MySQL, Sqlite3)
+

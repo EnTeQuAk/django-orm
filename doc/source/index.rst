@@ -29,10 +29,11 @@ Supported backends with connection pooling:
 Generic features:
 ^^^^^^^^^^^^^^^^^
 
-* Connection Pool.
+* Connection Pool. 
+* Own statements of indices for the model
+
 * Low level orm cache (not implemented)
 * Object level lock (not implemented)
-* Own statements of indices for the model (in development)
 
 PostgreSQL specific features:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
