@@ -72,11 +72,6 @@ class PersistentPool(QueuePool):
     In most of my tests with django, only one 
     connection is maintained by thread.
     """
-    
-    def __init__(self, *args, **kwargs):
-        super(BasePersistentPool, self).__init__(*args, **kwargs)
-        self._pool = {}
-
     def _getconn(self):
         if hasattr(thr_local, 'connection') and \
                 thr_local.connection is not None:

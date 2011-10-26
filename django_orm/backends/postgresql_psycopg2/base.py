@@ -80,7 +80,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         global pool
         settings_dict = self.settings_dict
         options = self.settings_dict.get('OPTIONS', {})
-        pool_type = options.get('POOLTYPE', POOLTYPE_QUEUE)
+        pool_type = options.get('POOLTYPE', POOLTYPE_PERSISTENT)
 
         if not pool:
             poolclass = PersistentPool \
@@ -88,11 +88,8 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             pool = poolclass(self.settings_dict)
         
         if self.connection is None:
-            print 2
             self.connection = pool.getconn()
-            print 3
             if self.connection is not None and not self._try_connected():
-                print 4
                 self.connection.close()
                 self.connection = None
 
