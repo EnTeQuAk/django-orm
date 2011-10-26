@@ -26,14 +26,17 @@ class DatabaseCreation(BaseDatabaseCreation):
         if cursor.fetchone():
             # skip if already exists
             return
-
         
-        if self.connection.pg_version >= 901000:
+        if self.connection.postgres_version >= 90100:
             cursor.execute('CREATE EXTENSION hstore;')
             cursor.execute('COMMIT;')
         else:
             raise Exception("hstore type not found in the database. "
                         "please install it from your 'contrib/hstore.sql' file")
+
+    def create_test_db(self, *args, **kwargs):
+        self.connection.pool_enabled = False
+        return super(DatabaseCreation, self).create_test_db(*args, **kwargs)
     
     def _create_test_db(self, verbosity, autoclobber):
         super(DatabaseCreation, self)._create_test_db(verbosity,autoclobber)

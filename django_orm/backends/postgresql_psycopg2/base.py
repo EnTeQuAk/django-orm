@@ -32,6 +32,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     support.
     """
     _pg_version = None
+    pool_enabled = False
 
     def __init__(self, *args, **kwargs):
         super(DatabaseWrapper, self).__init__(*args, **kwargs)
@@ -39,6 +40,10 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         self.server_side_cursor_itersize = None
         self.ops = DatabaseOperations(self)
         self.creation = DatabaseCreation(self)
+        
+        options = self.settings_dict.get('OPTIONS', {})
+        self.pool_type = options.get('POOLTYPE', POOLTYPE_PERSISTENT)
+        self.pool_enabled = options.pop('POOL_ENABLED', True)
 
     def _try_connected(self):
         """
@@ -60,10 +65,17 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         if self.connection is None:
             return
         
-        print "Connection closing:", id(self.connection)
+        print "Pool enabled: %s Connection closing: %s" % \
+            (self.pool_enabled, id(self.connection))
+
+        if not self.pool_enabled:
+            self.connection.close()
+            self.connection = None
+            return
+
         if not self.connection.closed:
-            #self.connection.close()
             pool.putconn(self.connection)
+
         self.connection = None
 
     def _register(self):
@@ -78,13 +90,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         otherwise falls through to the default client side cursors.
         """
         global pool
-        settings_dict = self.settings_dict
-        options = self.settings_dict.get('OPTIONS', {})
-        pool_type = options.get('POOLTYPE', POOLTYPE_PERSISTENT)
-
         if not pool:
             poolclass = PersistentPool \
-                if pool_type == POOLTYPE_PERSISTENT else QueuePool
+                if self.pool_type == POOLTYPE_PERSISTENT else QueuePool
             pool = poolclass(self.settings_dict)
         
         if self.connection is None:
@@ -110,12 +118,16 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                 pass
 
         if self._pg_version is None:
-            try:
-                from django_postgresql.postgresql_psycopg2.version import get_version
-                self._pg_version = get_version(self.connection)
-            except ImportError:
-                pass
+            self._pg_version = self.postgres_version
         return cursor
+            
+    @property
+    def postgres_version(self):
+        from django_orm.backends.postgresql_psycopg2.version import get_version
+        if not hasattr(self, '_postgres_version'):
+            self.__class__._postgres_version = get_version(self.connection)
+        return self._postgres_version
+            
 
 
 from django.dispatch import receiver
