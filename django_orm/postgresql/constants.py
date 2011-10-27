@@ -80,6 +80,6 @@ geometric_lookups = (
 )
 
 QUERY_TERMS.update(dict([(x, None) for x in \
-    ('indexexact', 'distinct', 'slice', 'containedby')]))
+    ('indexexact', 'distinct', 'slice', 'containedby', 'unaccent', 'iunaccent')]))
 
 QUERY_TERMS.update(dict([(x, None) for x in geometric_lookups]))

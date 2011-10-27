@@ -26,6 +26,7 @@ class PgWhereNode(WhereNode):
             raise ValueError('invalid value')
 
         db_type = lvalue.field.db_type(**kwargs)
+
         if lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') \
             and db_type in ('box', 'point', 'line', 'lseg', 'path', 'polygon', 'circle'):
             
@@ -100,9 +101,8 @@ class PgWhereNode(WhereNode):
             else:
                 raise TypeError('invalid lookup type')
 
-        
         elif lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') \
-                and '[]' in lvalue.field.db_type(**kwargs):
+                and '[]' in db_type:
 
             try:
                 lvalue, params = lvalue.process(lookup_type, param, connection)
@@ -150,6 +150,24 @@ class PgWhereNode(WhereNode):
 
             else:
                 raise TypeError('invalid lookup type')
+
+
+        elif lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') \
+                and "varchar" in db_type:
+
+            try:
+                lvalue, params = lvalue.process(lookup_type, param, connection)
+            except EmptyShortCircuit:
+                raise EmptyResultSet
+            
+            field = self.sql_for_columns(lvalue, qn, connection)
+
+            if lookup_type == 'unaccent':
+                return ('unaccent(%s) LIKE unaccent(%%s)' % field, ["%" + param + "%"])
+            elif lookup_type == 'iunaccent':
+                return ('lower(unaccent(%s)) LIKE lower(unaccent(%%s))' % field, ["%" + param + "%"])
+            else:
+                return super(PgWhereNode, self).make_atom(child, qn, connection)
 
         return super(PgWhereNode, self).make_atom(child, qn, connection)
 

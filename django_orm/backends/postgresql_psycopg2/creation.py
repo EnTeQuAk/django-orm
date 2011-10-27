@@ -54,7 +54,12 @@ class DatabaseCreation(BaseDatabaseCreation):
         return output
 
     def sql_indexes_for_field(self, model, f, style):
+        """
+        Create a CREATE INDEX sentence for  custom fields.
+        """
+        from django_orm.postgresql.fields import standard as stdfields
         kwargs = VERSION[:2] >= (1, 3) and {'connection': self.connection} or {}
+
         if f.db_type(**kwargs) in ('hstore', 'tsvector'):
             if not f.db_index:
                 return []
@@ -79,4 +84,26 @@ class DatabaseCreation(BaseDatabaseCreation):
             clauses.append(';')
             return [' '.join(clauses)]
 
+        elif isinstance(f, stdfields.CharField):
+            output = super(DatabaseCreation, self).sql_indexes_for_field(model, f, style)
+            qn = self.connection.ops.quote_name
+
+            index_name0 = '%s_%s_idx%s_btree' % (model._meta.db_table, f.column, 0)
+            index_name1 = '%s_%s_idx%s_btree' % (model._meta.db_table, f.column, 1)
+
+            clauses0 = [style.SQL_KEYWORD('CREATE INDEX'),
+                style.SQL_TABLE(qn(truncate_name(index_name0, self.connection.ops.max_name_length()))),
+                style.SQL_KEYWORD('ON'),
+                style.SQL_TABLE(qn(model._meta.db_table)),
+                style.SQL_KEYWORD('USING BTREE'),
+                '(unaccent(%s))' % style.SQL_FIELD(qn(f.column))]
+
+            clauses1 = [style.SQL_KEYWORD('CREATE INDEX'),
+                style.SQL_TABLE(qn(truncate_name(index_name1, self.connection.ops.max_name_length()))),
+                style.SQL_KEYWORD('ON'),
+                style.SQL_TABLE(qn(model._meta.db_table)),
+                style.SQL_KEYWORD('USING BTREE'),
+                '(lower(unaccent(%s)))' % style.SQL_FIELD(qn(f.column))]
+
+            return output + [' '.join(clauses0) + ';'] + [' '.join(clauses1) + ';']
         return super(DatabaseCreation, self).sql_indexes_for_field(model, f, style)
