@@ -85,6 +85,9 @@ class DatabaseCreation(BaseDatabaseCreation):
             return [' '.join(clauses)]
 
         elif isinstance(f, stdfields.CharField):
+            if not f.db_index:
+                return []
+
             output = super(DatabaseCreation, self).sql_indexes_for_field(model, f, style)
             qn = self.connection.ops.quote_name
 
