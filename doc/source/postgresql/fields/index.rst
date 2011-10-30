@@ -13,3 +13,4 @@ Table of Contents:
    array.rst
    interval.rst
    bytea.rst
+   geometric.rst
