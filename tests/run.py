@@ -21,22 +21,28 @@ if 'DB_PORT' not in os.environ:
 else:
     db_port = os.environ['DB_PORT']
 
+if 'DB_DRIVER' in os.environ:
+    db_driver = os.environ['DB_DRIVER']
+else:
+    db_driver = 'django_orm.backends.postgresql_psycopg2'
+
+
 test_settings = {
     'DATABASES': {
         'default': {
-            'ENGINE':'django_orm.backends.postgresql_psycopg2',
+            'ENGINE': db_driver,
             'USER': db_user,
             'NAME': db_name,
             'HOST': '',
             'PORT': db_port,
         }
     },
-    'INSTALLED_APPS': [
-        'tests.hstore_app',
-        'tests.unaccent_app',
-        'tests.fts_app',
-        'tests.pgcomplex_app',
-    ],
+    #'INSTALLED_APPS': [
+    #    'tests.hstore_app',
+    #    'tests.unaccent_app',
+    #    'tests.fts_app',
+    #    'tests.pgcomplex_app',
+    #],
     'ROOT_URLCONF': 'tests.test_app.urls',
     'LOGGING': {
         'version': 1,
@@ -59,11 +65,23 @@ test_settings = {
     }
 }
 
-
 if __name__ == '__main__':
     test_args = sys.argv[1:]
     if not test_args:
-        test_args = ['hstore_app', 'unaccent_app', 'fts_app', 'pgcomplex_app',]
+        if "postgresql" in db_driver:
+            test_settings['INSTALLED_APPS'] = [
+                'tests.hstore_app',
+                'tests.unaccent_app',
+                'tests.fts_app',
+                'tests.pgcomplex_app',
+            ]
+            test_args = ['hstore_app', 'unaccent_app', 'fts_app', 'pgcomplex_app',]
+
+        elif "mysql" in db_driver:
+            test_settings['INSTALLED_APPS'] = [
+                'tests.unaccent_app',
+            ]
+            test_args = ['unaccent_app']
 
     current_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..")
@@ -74,7 +92,6 @@ if __name__ == '__main__':
         settings.configure(**test_settings)
 
     from django.test.simple import DjangoTestSuiteRunner
-
     runner = DjangoTestSuiteRunner(verbosity=2, interactive=True, failfast=False)
     failures = runner.run_tests(test_args)
     sys.exit(failures)
