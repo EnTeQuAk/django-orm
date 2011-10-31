@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import transaction
+from django.db.models.sql.subqueries import UpdateQuery
 
 def select_query(method):
     def selector(self, *args, **params):
