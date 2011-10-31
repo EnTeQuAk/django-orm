@@ -31,6 +31,7 @@ Generic features:
 
 * Connection Pool. 
 * Own statements of indices for the model
+* Improved F QuerySet Expression
 
 * Low level orm cache (not implemented)
 * Object level lock (not implemented)
@@ -60,6 +61,7 @@ Table of Contents:
    orm-cache.rst
    orm-indexes.rst
    orm-settings.rst
+   orm-expressions.rst
 
 
 Database specific documentation:
