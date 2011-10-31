@@ -64,22 +64,26 @@ if __name__ == '__main__':
     if "postgresql" in db_driver:
         test_settings['INSTALLED_APPS'] = [
             'tests.hstore_app',
-            'tests.unaccent_app',
+            'tests.aggregates_unaccent_app',
             'tests.fts_app',
             'tests.pgcomplex_app',
             'tests.f_expression_testapp',
         ]
         if not test_args:
-            test_args = ['hstore_app', 'unaccent_app', 'fts_app', 'pgcomplex_app',
-                'f_expression_testapp',]
+            test_args = [
+                'hstore_app', 
+                'aggregates_unaccent_app', 
+                'fts_app', 
+                'pgcomplex_app',
+                'f_expression_testapp'
+            ]
 
     elif "mysql" in db_driver:
         test_settings['INSTALLED_APPS'] = [
-            'tests.unaccent_app',
             'tests.f_expression_testapp',
         ]
         if not test_args:
-            test_args = ['unaccent_app', 'f_expression_testapp',]
+            test_args = ['f_expression_testapp',]
 
     current_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..")

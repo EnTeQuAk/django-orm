@@ -4,9 +4,6 @@ from django.db import connection
 from django_orm.postgresql.aggregates import Unaccent
 from django.utils.unittest import TestCase
 
-from django.utils import unittest
-from django.db import connection
-
 from .models import Person
 
 class TestUnaccent(TestCase):
@@ -18,7 +15,6 @@ class TestUnaccent(TestCase):
         self.p1.delete()
         self.p2.delete()
     
-    @unittest.skipIf(connection.vendor != 'postgresql', "Only for postgresql")
     def test_annotate(self):
         qs = Person.objects.annotate(name_unaccent=Unaccent('name')).order_by('id')
         qs = list(qs)
