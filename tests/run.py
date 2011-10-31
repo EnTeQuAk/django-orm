@@ -37,12 +37,6 @@ test_settings = {
             'PORT': db_port,
         }
     },
-    #'INSTALLED_APPS': [
-    #    'tests.hstore_app',
-    #    'tests.unaccent_app',
-    #    'tests.fts_app',
-    #    'tests.pgcomplex_app',
-    #],
     'ROOT_URLCONF': 'tests.test_app.urls',
     'LOGGING': {
         'version': 1,
@@ -67,21 +61,25 @@ test_settings = {
 
 if __name__ == '__main__':
     test_args = sys.argv[1:]
-    if not test_args:
-        if "postgresql" in db_driver:
-            test_settings['INSTALLED_APPS'] = [
-                'tests.hstore_app',
-                'tests.unaccent_app',
-                'tests.fts_app',
-                'tests.pgcomplex_app',
-            ]
-            test_args = ['hstore_app', 'unaccent_app', 'fts_app', 'pgcomplex_app',]
+    if "postgresql" in db_driver:
+        test_settings['INSTALLED_APPS'] = [
+            'tests.hstore_app',
+            'tests.unaccent_app',
+            'tests.fts_app',
+            'tests.pgcomplex_app',
+            'tests.f_expression_testapp',
+        ]
+        if not test_args:
+            test_args = ['hstore_app', 'unaccent_app', 'fts_app', 'pgcomplex_app',
+                'f_expression_testapp',]
 
-        elif "mysql" in db_driver:
-            test_settings['INSTALLED_APPS'] = [
-                'tests.unaccent_app',
-            ]
-            test_args = ['unaccent_app']
+    elif "mysql" in db_driver:
+        test_settings['INSTALLED_APPS'] = [
+            'tests.unaccent_app',
+            'tests.f_expression_testapp',
+        ]
+        if not test_args:
+            test_args = ['unaccent_app', 'f_expression_testapp',]
 
     current_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..")
