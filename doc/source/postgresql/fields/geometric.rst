@@ -21,6 +21,13 @@ and the corresponding python wrappers in the same order:
 * ``django_orm.postgresql.geometric.objects.Path``
 * ``django_orm.postgresql.geometric.objects.Polygon``
 
+Examples:
+
+.. toctree::
+   :maxdepth: 1
+
+   geometric-samples.rst
+
 
 Aggregates
 ----------
@@ -103,3 +110,4 @@ With one argument:
 * ``contained_in_or_on``,
 * ``contains``,
 * ``same_as``,
+
