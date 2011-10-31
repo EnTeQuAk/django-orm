@@ -3,6 +3,8 @@
 from django.db import connection
 from django_orm.postgresql.aggregates import Unaccent
 from django.utils.unittest import TestCase
+from django.utils import unittest
+from django.db import connection
 
 from .models import Person
 
@@ -19,6 +21,7 @@ class TestFts(TestCase):
             description=u"Is a housewife",
         )
 
+    @unittest.skipIf(connection.vendor != 'postgresql', "Only for postgresql")
     def test_search_and(self):
         qs1 = Person.objects.search(query="programmer")
         qs2 = Person.objects.search(query="Andrei")
@@ -26,6 +29,7 @@ class TestFts(TestCase):
         self.assertEqual(qs1.count(), 1)
         self.assertEqual(qs2.count(), 1)
 
+    @unittest.skipIf(connection.vendor != 'postgresql', "Only for postgresql")
     def test_search_and_2(self):
         qs1 = Person.objects.search(query="Andrei & programmer")
         qs2 = Person.objects.search(query="Pepa & housewife")
@@ -35,6 +39,7 @@ class TestFts(TestCase):
         self.assertEqual(qs2.count(), 1)
         self.assertEqual(qs3.count(), 0)
 
+    @unittest.skipIf(connection.vendor != 'postgresql', "Only for postgresql")
     def test_search_or(self):
         qs1 = Person.objects.search(query="Andrei | Pepa")
         qs2 = Person.objects.search(query="Andrei | Pepo")
@@ -45,7 +50,8 @@ class TestFts(TestCase):
         self.assertEqual(qs2.count(), 1)
         self.assertEqual(qs3.count(), 2)
         self.assertEqual(qs4.count(), 0)
-
+    
+    @unittest.skipIf(connection.vendor != 'postgresql', "Only for postgresql")
     def test_update_indexes(self):
         self.p1.name = 'Francisco'
         self.p1.save()

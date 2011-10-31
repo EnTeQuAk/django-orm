@@ -17,6 +17,7 @@ from django_orm.backends.postgresql_psycopg2.operations import DatabaseOperation
 from django_orm.pool import QueuePool, PersistentPool
 from django_orm import POOLTYPE_PERSISTENT, POOLTYPE_QUEUE
 
+import psycopg2
 import threading
 import datetime
 import logging
@@ -57,7 +58,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         try:
             self.connection.cursor().execute("SELECT 1;")
             return True
-        except psycopg2.OperationalError:
+        except (psycopg2.OperationalError, psycopg2.InterfaceError):
             return False
 
     def close(self):
@@ -65,8 +66,8 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         if self.connection is None:
             return
         
-        print "Pool enabled: %s Connection closing: %s" % \
-            (self.pool_enabled, id(self.connection))
+        #print "Pool enabled: %s Connection closing: %s" % \
+        #    (self.pool_enabled, id(self.connection))
 
         if not self.pool_enabled:
             self.connection.close()
@@ -98,7 +99,6 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         if self.connection is None:
             self.connection = pool.getconn()
             if self.connection is not None and not self._try_connected():
-                self.connection.close()
                 self.connection = None
 
         cursor = super(DatabaseWrapper, self)._cursor()
@@ -110,6 +110,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                 cursor.itersize = self.server_side_cursor_itersize
             cursor = CursorWrapper(cursor)
 
+        self._register()
         if not hasattr(self, '_version'):
             try:
                 from django.db.backends.postgresql.version import get_version

@@ -41,7 +41,7 @@ class QueuePool(object):
         else:
             self._pool.put(conn, block=False)
 
-        print "Pool debug: size:",  self._pool.qsize()
+        #print "Pool debug: size:",  self._pool.qsize()
 
     def getconn(self):
         """

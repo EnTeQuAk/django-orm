@@ -35,7 +35,7 @@ test_settings = {
         'tests.hstore_app',
         'tests.unaccent_app',
         'tests.fts_app',
-        'tests.general_app',
+        'tests.pgcomplex_app',
     ],
     'ROOT_URLCONF': 'tests.test_app.urls',
     'LOGGING': {
@@ -63,7 +63,7 @@ test_settings = {
 if __name__ == '__main__':
     test_args = sys.argv[1:]
     if not test_args:
-        test_args = ['hstore_app', 'unaccent_app', 'fts_app', 'general_app']
+        test_args = ['hstore_app', 'unaccent_app', 'fts_app', 'pgcomplex_app',]
 
     current_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..")
