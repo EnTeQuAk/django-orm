@@ -1,4 +1,4 @@
-Low-level orm cache
-===================
+Low-level orm cache (Not implemented)
+=====================================
 
-In development.
+In development on devel branch.

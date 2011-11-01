@@ -1,5 +1,5 @@
-Custom indexes for model
-========================
+Own statements of indixes for a model
+=====================================
 
 It allows a simple way to add more additional indices to a particular model.
 

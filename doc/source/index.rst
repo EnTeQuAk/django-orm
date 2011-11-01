@@ -26,15 +26,20 @@ Supported backends with connection pooling:
 * MySQL 5.1: ``django_orm.backends.mysql``
 * SQLite: ``django_orm.backends.sqlite3``
 
-Generic features:
-^^^^^^^^^^^^^^^^^
 
-* Connection Pool. 
-* Own statements of indices for the model
-* Improved F QuerySet Expression
+Generic features (All backends):
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Low level orm cache (not implemented)
-* Object level lock (not implemented)
+.. toctree::
+   :maxdepth: 1
+    
+   orm-pool.rst
+   orm-indexes.rst
+   orm-f-expression.rst
+   orm-unaccent-lookup.rst
+   orm-cache.rst
+   orm-objectlock.rst
+
 
 PostgreSQL specific features:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -45,27 +50,14 @@ PostgreSQL specific features:
 * Server side cursors
 * Native types with full query lookups:
 
-  - Arrays
-  - Intervals
-  - Bytea
-  - Geometric (box, line, path, polygon, point, circle)
+  * Arrays
+  * Intervals
+  * Bytea
+  * Geometric
 
 
-Table of Contents:
-------------------
-
-.. toctree::
-   :maxdepth: 1
-    
-   orm-pool.rst
-   orm-cache.rst
-   orm-indexes.rst
-   orm-settings.rst
-   orm-expressions.rst
-
-
-Database specific documentation:
---------------------------------
+Database specific documentation index:
+--------------------------------------
 
 .. toctree::
    :maxdepth: 1
@@ -73,10 +65,3 @@ Database specific documentation:
    mysql.rst
    sqlite.rst
    postgresql/index.rst
-
-.. Indices and tables
-   ==================
-   * :ref:`genindex`
-   * :ref:`modindex`
-   * :ref:`search`
-

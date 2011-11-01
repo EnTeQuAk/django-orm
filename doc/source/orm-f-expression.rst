@@ -1,8 +1,5 @@
-QuerySet expressions
-====================
-
-F Expression
-------------
+Improved F QuerySet Expression
+==============================
 
 According to the Django documentation, we know:
 
