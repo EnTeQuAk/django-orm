@@ -19,13 +19,12 @@ Usage in model declaration:
 
     from django.db import models
     from django_orm.postgresql.fields.arrays import ArrayField
-    from django_orm.postgresql.manager import PgManager
+    from django_orm.manager import Manager
 
     class TestModel(models.Model):
         my_int_list = ArrayField(dbtype='int', null=True)
         my_text_list = ArrayField(dbtype='text', null=True)
-
-        objects = PgManager()
+        objects = Manager()
     
 
 

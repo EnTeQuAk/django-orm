@@ -15,11 +15,11 @@ This is a simple example of a model that contains this field.
 
     from django.db import models
     from django_orm.postgresql.fields.bytea import ByteaField
-    from django_orm.postgresql.manager import PgManager
+    from django_orm.manager import Manager
 
     class TestModel(models.Model):
         bb = ByteaField()
-        objects = PgManager()
+        objects = Manager()
 
 
 ------------------------

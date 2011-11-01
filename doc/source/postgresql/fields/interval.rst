@@ -23,11 +23,11 @@ This is a simple example of a model that contains this field.
 
     from django.db import models
     from django_orm.postgresql.fields.interval import IntervalField
-    from django_orm.postgresql.manager import PgManager
+    from django_orm.manager import Manager
 
     class TestModel(models.Model):
         iv = IntervalField()
-        objects = PgManager()
+        objects = Manager()
 
 
 ------------------------
