@@ -1,0 +1,4 @@
+#!/bin/sh
+
+DB_DRIVER='django_orm.backends.sqlite3'
+DB_NAME=":memory:" DB_USER="" DB_DRIVER=$DB_DRIVER python2 tests/run.py "$@"

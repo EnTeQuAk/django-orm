@@ -69,21 +69,20 @@ if __name__ == '__main__':
             'tests.pgcomplex_app',
             'tests.f_expression_testapp',
         ]
-        if not test_args:
-            test_args = [
-                'hstore_app', 
-                'aggregates_unaccent_app', 
-                'fts_app', 
-                'pgcomplex_app',
-                'f_expression_testapp'
-            ]
 
     elif "mysql" in db_driver:
         test_settings['INSTALLED_APPS'] = [
             'tests.f_expression_testapp',
         ]
-        if not test_args:
-            test_args = ['f_expression_testapp',]
+
+    elif "sqlite" in db_driver:
+        test_settings['INSTALLED_APPS'] = [
+            'tests.f_expression_testapp',
+        ]
+
+    if not test_args:
+        test_args = [x.split(".")[-1] \
+            for x in test_settings['INSTALLED_APPS']]
 
     current_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..")
