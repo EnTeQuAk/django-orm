@@ -4,31 +4,31 @@ from django.db import models
 from django_orm.postgresql.fields.arrays import ArrayField
 from django_orm.postgresql.fields.interval import IntervalField
 from django_orm.postgresql.fields.bytea import ByteaField
-from django_orm.postgresql.manager import PgManager
+from django_orm.manager import Manager
 
 class IntModel(models.Model):
     lista = ArrayField(dbtype='int')
-    objects = PgManager()
+    objects = Manager()
     
 class TextModel(models.Model):
     lista = ArrayField(dbtype='text')
-    objects = PgManager()
+    objects = Manager()
 
 class DoubleModel(models.Model):
     lista = ArrayField(dbtype='double precision')
-    objects = PgManager()
+    objects = Manager()
 
 class VarcharModel(models.Model):
     lista = ArrayField(dbtype='varchar(40)')
-    objects = PgManager()
+    objects = Manager()
 
 class IntervalModel(models.Model):
     iv = IntervalField()
-    objects = PgManager()
+    objects = Manager()
 
 class ByteaModel(models.Model):
     bb = ByteaField()
-    objects = PgManager()
+    objects = Manager()
 
 
 from django_orm.postgresql.geometric.fields import PointField, CircleField
@@ -43,4 +43,4 @@ class GeomModel(models.Model):
     cr = CircleField()
     ph = PathField()
 
-    objects = PgManager()
+    objects = Manager()
