@@ -40,5 +40,14 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
         if self.connection is None:
             self.connection = pool.getconn()
+        
+        cursor = super(DatabaseWrapper, self)._cursor()
+        self.connection.create_function("unaccent", 1, _sqlite_unaccent)
+        return cursor
 
-        return super(DatabaseWrapper, self)._cursor()
+
+def _sqlite_unaccent(data):
+    if isinstance(data, unicode):
+        from django_orm.utils import remove_diacritic
+        return remove_diacritic(data)
+    return data

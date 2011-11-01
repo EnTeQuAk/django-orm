@@ -13,9 +13,9 @@ try:
 except ImportError:
     from django.db.models.query_utils import QueryWrapper # django >= 1.4
 
-from django_orm.mysql.constants import QUERY_TERMS
+from django_orm.sqlite3.constants import QUERY_TERMS
 
-class MyWhereNode(WhereNode):
+class SqliteWhereNode(WhereNode):
     def make_atom(self, child, qn, connection):
         lvalue, lookup_type, value_annot, param = child
         kwargs = {'connection': connection} if VERSION[:2] >= (1, 3) else {}
@@ -26,7 +26,7 @@ class MyWhereNode(WhereNode):
         db_type = lvalue.field.db_type(**kwargs)
 
         if lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') \
-                and "varchar" in db_type:
+                and ("varchar" in db_type or "text" in db_type):
 
             try:
                 lvalue, params = lvalue.process(lookup_type, param, connection)
@@ -35,19 +35,19 @@ class MyWhereNode(WhereNode):
             
             field = self.sql_for_columns(lvalue, qn, connection)
             if lookup_type in ['unaccent', 'iunaccent']:
-                return ("%s LIKE _utf8 %%s COLLATE utf8_unicode_ci" % field, ["%" + param + "%"])
+                return ("unaccent(%s) LIKE unaccent(%%s) ESCAPE '\\'" % field, ["%" + param + "%"])
             else:
-                return super(MyWhereNode, self).make_atom(child, qn, connection)
+                return super(SqliteWhereNode, self).make_atom(child, qn, connection)
+        return super(SqliteWhereNode, self).make_atom(child, qn, connection)
 
-        return super(MyWhereNode, self).make_atom(child, qn, connection)
 
-
-class MyQuery(Query):
+class SqliteQuery(Query):
     query_terms = QUERY_TERMS
     def __init__(self, model):
-        super(MyQuery, self).__init__(model, where=MyWhereNode)
+        super(SqliteQuery, self).__init__(model, where=SqliteWhereNode)
 
-class MyQuerySet(QuerySet):
+
+class SqliteQuerySet(QuerySet):
     def __init__(self, model=None, query=None, using=None):
-        query = query or MyQuery(model)
-        super(MyQuerySet, self).__init__(model=model, query=query, using=using)
+        query = query or SqliteQuery(model)
+        super(SqliteQuerySet, self).__init__(model=model, query=query, using=using)

@@ -14,6 +14,9 @@ class Manager(models.Manager):
         elif connection.vendor == 'mysql':
             from django_orm.mysql.query import MyQuerySet
             return MyQuerySet(self.model, using=self._db)
+        elif connection.vendor == 'sqlite':
+            from django_orm.sqlite3.query import SqliteQuerySet
+            return SqliteQuerySet(self.model, using=self._db)
         else:
             return super(Manager, self).get_query_set()
 
