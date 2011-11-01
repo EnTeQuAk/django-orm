@@ -21,8 +21,8 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         if self.connection is None:
             return 
 
-        print "Pool enabled: %s Connection closing: %s" % \
-            (self.pool_enabled, id(self.connection))
+        #print "Pool enabled: %s Connection closing: %s" % \
+        #    (self.pool_enabled, id(self.connection))
 
         if not self.pool_enabled and self.settings_dict['NAME'] != ":memory:":
             BaseDatabaseWrapper.close(self)

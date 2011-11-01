@@ -68,16 +68,19 @@ if __name__ == '__main__':
             'tests.fts_app',
             'tests.pgcomplex_app',
             'tests.f_expression_testapp',
+            'tests.unaccent_lookup_test_app',
         ]
 
     elif "mysql" in db_driver:
         test_settings['INSTALLED_APPS'] = [
             'tests.f_expression_testapp',
+            'tests.unaccent_lookup_test_app',
         ]
 
     elif "sqlite" in db_driver:
         test_settings['INSTALLED_APPS'] = [
             'tests.f_expression_testapp',
+            'tests.unaccent_lookup_test_app',
         ]
 
     if not test_args:
