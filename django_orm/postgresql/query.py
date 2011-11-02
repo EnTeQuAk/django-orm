@@ -22,11 +22,16 @@ class PgWhereNode(WhereNode):
         lvalue, lookup_type, value_annot, param = child
         kwargs = {'connection': connection} if VERSION[:2] >= (1, 3) else {}
 
-        if isinstance(param, (list, tuple)) and len(param) == 0:
-            raise ValueError('invalid value')
+        #if isinstance(param, (list, tuple)) and len(param) == 0:
+        #    raise ValueError('invalid value')
+        
+        if not lvalue.field:
+            return super(PgWhereNode, self).make_atom(child, qn, connection)
+
+        if not hasattr(lvalue.field, 'db_type'):
+            return super(PgWhereNode, self).make_atom(child, qn, connection)
 
         db_type = lvalue.field.db_type(**kwargs)
-
         if lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') \
             and db_type in ('box', 'point', 'line', 'lseg', 'path', 'polygon', 'circle'):
             
