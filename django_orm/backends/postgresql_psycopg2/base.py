@@ -101,6 +101,10 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             if self.connection is not None and not self._try_connected():
                 self.connection = None
 
+        if self.connection is not None:
+            self.connection.set_client_encoding('UTF8')
+            self.connection.set_isolation_level(self.isolation_level)
+
         cursor = super(DatabaseWrapper, self)._cursor()
         if self.server_side_cursors:
             cursor = self.connection.cursor(name='cur%s' %\
