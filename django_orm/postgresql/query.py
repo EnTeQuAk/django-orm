@@ -183,7 +183,10 @@ class PgQuery(Query):
         super(PgQuery, self).__init__(model, where=PgWhereNode)
 
 
-class PgQuerySet(QuerySet):
+from django_orm.cache.query import CachedQuerySet
+
+
+class PgQuerySet(CachedQuerySet):
     def __init__(self, model=None, query=None, using=None):
         query = query or PgQuery(model)
         super(PgQuerySet, self).__init__(model=model, query=query, using=using)
