@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 from django.db.models import signals
-from django_orm.manager import Manager
 from django.conf import settings
-from django.core.cache import cache
+
+from django_orm.cache.utils import get_cache
+from django_orm.manager import Manager
 
 import logging; log = logging.getLogger('orm.cache')
 
 DEFAULT_CACHE_TIMEOUT = getattr(settings, 'ORM_CACHE_DEFAULT_TIMEOUT', 60)
 DEFAULT_CACHE_ENABLED = getattr(settings, 'ORM_CACHE_DEFAULT_ENABLED', False)
 
-def ensure_default_manager(sender, **kwargs):
+cache = get_cache()
 
+def ensure_default_manager(sender, **kwargs):
     options = getattr(sender, '_options', None)
     options_are_none  = False
     options_add_manager = False

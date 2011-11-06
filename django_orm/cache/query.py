@@ -1,15 +1,18 @@
+# -*- coding: utf-8 -*-
+
 from django.db.models.query import QuerySet, ITER_CHUNK_SIZE
 from django.db import backend, connection
-from django.core.cache import cache
 from django.conf import settings
 
-from django_orm.cache.utils import get_cache_key_for_pk
+from django_orm.cache.utils import get_cache_key_for_pk, get_cache
 from django_orm.cache.exceptions import CacheMissingWarning
 
 CACHE_KEY_PREFIX = getattr(settings, 'ORM_CACHE_KEY_PREFIX', 'orm.cache')
 
 import copy, hashlib
 import logging; log = logging.getLogger('orm.cache')
+
+cache = get_cache()
 
 class CachedQuerySetMixIn(object):
     from_cache = False
