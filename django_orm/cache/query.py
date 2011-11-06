@@ -41,10 +41,6 @@ class CachedQuerySet(QuerySet):
         return qs
 
     def get(self, *args, **kwargs):
-        """
-        TODO: refactor
-        """
-
         if not self.cache_object_enable:
             return super(CachedQuerySet, self).get(*args, **kwargs)
 
@@ -168,7 +164,6 @@ class CachedQuerySet(QuerySet):
     def _fill_cache(self, num=None):
         super(CachedQuerySet, self)._fill_cache(num=num)
         if not self._iter and not self.from_cache and self.cache_queryset_enable:
-            #print "save current queryset on cache"
             qs_prepared_for_cache = self._prepare_queryset_for_cache(self._result_cache)
             cache.set(self.query_key(), qs_prepared_for_cache, self.cache_timeout)
             cache.set_many(dict([(obj.cache_key, obj) \
