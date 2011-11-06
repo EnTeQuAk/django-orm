@@ -19,13 +19,12 @@ class CachedQuerySet(QuerySet):
 
     def __init__(self, *args, **kwargs):
         self.cache_key_prefix = CACHE_KEY_PREFIX
-        self.cache_timeout = DEFAULT_CACHE_TIMEOUT
         super(CachedQuerySet, self).__init__(*args, **kwargs)
 
-        if self.model:
-            options = getattr(self.model, 'additional_options')
-            self.cache_object_enable = options['cache_object']
-            self.cache_queryset_enable = DEFAULT_CACHE_ENABLED
+        options = getattr(self.model, '_options')
+        self.cache_object_enable = options['cache_object']
+        self.cache_queryset_enable = options['cache_queryset']
+        self.cache_timeout = options['default_timeout']
 
     def query_key(self):
         sql, params = self.query.get_compiler(using=self.db).as_sql()
