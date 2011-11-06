@@ -64,14 +64,16 @@ class CachedQuerySetMixIn(object):
             ckey = get_cache_key_for_pk(self.model, pk, **params)
             obj = cache.get(ckey)
         
-        if not obj:
-            obj = super(CachedQuerySetMixIn, self).get(*args, **kwargs)
-            cache.set(ckey, obj, self.cache_timeout)
-            log.info("Orm cache missing: %s(%s)", 
-                self.model.__name__, obj.id)
+            if not obj:
+                obj = super(CachedQuerySetMixIn, self).get(*args, **kwargs)
+                cache.set(ckey, obj, self.cache_timeout)
+                log.info("Orm cache missing: %s(%s)", 
+                    self.model.__name__, obj.id)
+            else:
+                log.info("Orm cache hit: %s(%s)", 
+                    self.model.__name__, obj.id)
         else:
-            log.info("Orm cache hit: %s(%s)", 
-                self.model.__name__, obj.id)
+            obj = super(CachedQuerySetMixIn, self).get(*args, **kwargs)
 
         return obj
 

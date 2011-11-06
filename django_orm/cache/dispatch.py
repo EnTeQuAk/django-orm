@@ -36,7 +36,7 @@ def ensure_default_manager(sender, **kwargs):
     else:
         log.info("Enabled manger on model %s", sender.__name__)
 
-    sender.add_to_class('objects', Manager()) 
+    sender.add_to_class(options_manager_name, Manager()) 
 
     if 'cache_object' not in options:
         options['cache_object'] = DEFAULT_CACHE_ENABLED
