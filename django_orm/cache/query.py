@@ -9,6 +9,7 @@ from django_orm.cache.utils import get_cache_key_for_pk, get_cache
 from django_orm.cache.exceptions import CacheMissingWarning
 
 CACHE_KEY_PREFIX = getattr(settings, 'ORM_CACHE_KEY_PREFIX', 'orm.cache')
+CACHE_FETCH_BY_ID = getattr(settings, 'ORM_CACHE_FETCH_BY_ID', True)
 
 import copy, hashlib
 import logging; log = logging.getLogger('orm.cache')
@@ -19,6 +20,8 @@ class CachedQuerySetMixIn(object):
     from_cache = False
     cache_object_enable = False
     cache_queryset_enable = False
+    cache_fetch_by_id = False
+
 
     def __init__(self, *args, **kwargs):
         self.cache_key_prefix = CACHE_KEY_PREFIX
@@ -37,6 +40,15 @@ class CachedQuerySetMixIn(object):
             hashlib.sha1(sql % params).hexdigest()
         )
 
+    def _clone(self, klass=None, **kwargs):
+        """ Clone queryset. """
+        qs = super(CachedQuerySetMixIn,self)._clone(klass, **kwargs)
+        qs.cache_object_enable = self.cache_object_enable
+        qs.cache_queryset_enable = self.cache_queryset_enable
+        qs.cache_timeout = self.cache_timeout
+        qs.cache_fetch_by_id = self.cache_fetch_by_id
+        return qs
+
     def cache(self, timeout=None):
         if not timeout:
             timeout = self.cache_timeout
@@ -45,6 +57,11 @@ class CachedQuerySetMixIn(object):
         qs.cache_object_enable = True
         qs.cache_queryset_enable = True
         qs.cache_timeout = timeout
+        return qs
+
+    def byid(self):
+        qs = self._clone()
+        qs.cache_fetch_by_id = True
         return qs
 
     def get(self, *args, **kwargs):
@@ -74,16 +91,7 @@ class CachedQuerySetMixIn(object):
                     self.model.__name__, obj.id)
         else:
             obj = super(CachedQuerySetMixIn, self).get(*args, **kwargs)
-
         return obj
-
-    def _clone(self, klass=None, **kwargs):
-        """ Clone queryset. """
-        qs = super(CachedQuerySetMixIn,self)._clone(klass, **kwargs)
-        qs.cache_object_enable = self.cache_object_enable
-        qs.cache_queryset_enable = self.cache_queryset_enable
-        qs.cache_timeout = self.cache_timeout
-        return qs
 
     def _prepare_queryset_for_cache(self, queryset):
         """
@@ -159,7 +167,8 @@ class CachedQuerySetMixIn(object):
         cnt = len(missing) - len(objects)
         if cnt:
             raise CacheMissingWarning("%d objects missing in the database" % (cnt,))
-        return results        
+        return results
+
     
     def _result_iter(self):
         if not self.cache_queryset_enable:
@@ -183,7 +192,6 @@ class CachedQuerySetMixIn(object):
         return super(CachedQuerySetMixIn, self)._result_iter()
 
 
-
 class CachedQuerySet(CachedQuerySetMixIn, QuerySet):
     def _fill_cache(self, num=None):
         super(CachedQuerySet, self)._fill_cache(num=num)
@@ -205,6 +213,35 @@ class CachedQuerySet(CachedQuerySetMixIn, QuerySet):
             raise TypeError("'flat' is not valid when values_list is called with more than one field.")
         return self._clone(klass=CachedValuesListQuerySet, setup=True, flat=flat,
             _fields=fields)
+
+
+    def iterator(self):
+        if self.cache_fetch_by_id:
+            return self.fetch_by_id()
+        return super(CachedQuerySetMixIn, self).iterator()
+
+    def fetch_by_id(self):
+        vals = self.values_list('pk', *self.query.extra.keys())
+
+        ids = [val[0] for val in vals]
+        keys = dict((get_cache_key_for_pk(self.model, i), i)\
+            for i in ids)
+
+        cached = dict((k, v) for k, v in cache.get_many(keys).items()\
+            if v is not None)
+
+        missed = [pk for key, pk in keys.items() if key not in cached]
+        if missed:
+            objects = self.model._default_manager.filter(pk__in=missed)
+            new = dict((get_cache_key_for_pk(self.model, o.pk), o) \
+                for o in objects)
+            cache.set_many(new)
+        else:
+            new = {}
+
+        objects = dict((o.pk, o) for o in cached.values() + new.values())
+        for pk in ids:
+            yield objects[pk]
 
 
 class CachedValuesQuerySetMixIn(object):
