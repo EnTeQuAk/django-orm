@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models, connections
+import logging; log = logging.getLogger('orm.cache')
 
 class Manager(models.Manager):
     use_for_related_fields = True

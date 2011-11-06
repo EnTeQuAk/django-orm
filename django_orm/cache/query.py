@@ -6,20 +6,19 @@ from django.conf import settings
 from django_orm.cache.utils import get_cache_key_for_pk
 from django_orm.cache.exceptions import CacheMissingWarning
 
-CACHE_KEY_PREFIX = getattr(settings, 'ORM_CACHE_KEY_PREFIX', 'ormcache')
-import copy
+CACHE_KEY_PREFIX = getattr(settings, 'ORM_CACHE_KEY_PREFIX', 'orm.cache')
 
-class CachedQuerySet(QuerySet):
-    """
-    Extends the QuerySet object and caches results via CACHE_BACKEND.
-    """
+import copy, hashlib
+import logging; log = logging.getLogger('orm.cache')
+
+class CachedQuerySetMixIn(object):
     from_cache = False
     cache_object_enable = False
     cache_queryset_enable = False
 
     def __init__(self, *args, **kwargs):
         self.cache_key_prefix = CACHE_KEY_PREFIX
-        super(CachedQuerySet, self).__init__(*args, **kwargs)
+        super(CachedQuerySetMixIn, self).__init__(*args, **kwargs)
 
         options = getattr(self.model, '_options')
         self.cache_object_enable = options['cache_object']
@@ -28,7 +27,11 @@ class CachedQuerySet(QuerySet):
 
     def query_key(self):
         sql, params = self.query.get_compiler(using=self.db).as_sql()
-        return sql % params
+        return "%s:queryset:%s:%s" % (
+            CACHE_KEY_PREFIX,
+            self.model.__name__,
+            hashlib.sha1(sql % params).hexdigest()
+        )
 
     def cache(self, timeout=None):
         if not timeout:
@@ -42,10 +45,10 @@ class CachedQuerySet(QuerySet):
 
     def get(self, *args, **kwargs):
         if not self.cache_object_enable:
-            return super(CachedQuerySet, self).get(*args, **kwargs)
+            return super(CachedQuerySetMixIn, self).get(*args, **kwargs)
 
         if len(args) > 0:
-            return super(CachedQuerySet, self).get(*args, **kwargs)
+            return super(CachedQuerySetMixIn, self).get(*args, **kwargs)
         
         pk, params, obj = None, copy.deepcopy(kwargs), None
         if "pk" in params:
@@ -58,8 +61,13 @@ class CachedQuerySet(QuerySet):
             obj = cache.get(ckey)
         
         if not obj:
-            obj = super(CachedQuerySet, self).get(*args, **kwargs)
+            obj = super(CachedQuerySetMixIn, self).get(*args, **kwargs)
             cache.set(ckey, obj, self.cache_timeout)
+            log.info("Orm cache missing: %s(%s)", 
+                self.model.__name__, obj.id)
+        else:
+            log.info("Orm cache hit: %s(%s)", 
+                self.model.__name__, obj.id)
 
         return obj
 
@@ -97,7 +105,7 @@ class CachedQuerySet(QuerySet):
         """
         We transform the cache storage into an actual QuerySet object
         automagickly handling the keys depth and select_related fields (again,
-        using the recursive methods of CachedQuerySet).
+        using the recursive methods of CachedQuerySetMixIn).
         
         We effectively would just be doing a cache.multi_get(*pks), grabbing
         the pks for each releation, e.g. user, and then doing a
@@ -129,6 +137,8 @@ class CachedQuerySet(QuerySet):
         result_ids = [obj.id for obj in results]
         missing = [key for key in keys if key not in result_ids]
 
+        log.info("Orm cache queryset missing objects: %s(%s)",
+            self.model.__name__, missing)
         # We no longer need to know what the keys were so turn it into a list
         results = list(results)
         objects = model._default_manager.filter(pk__in=missing)
@@ -147,7 +157,7 @@ class CachedQuerySet(QuerySet):
     
     def _result_iter(self):
         if not self.cache_queryset_enable:
-            return super(CachedQuerySet, self)._result_iter()
+            return super(CachedQuerySetMixIn, self)._result_iter()
 
         from django.db.models.sql import query
         try:
@@ -157,14 +167,26 @@ class CachedQuerySet(QuerySet):
                 self._result_cache = results
                 self.from_cache = True
                 self._iter = None
+                log.info("Orm cache queryset hit for %s", self.model.__name__)
+            else:
+                log.info("Orm cache queryset missing for %s", self.model.__name__)
+
         except query.EmptyResultSet:
             pass
-        return super(CachedQuerySet, self)._result_iter()
+
+        return super(CachedQuerySetMixIn, self)._result_iter()
 
     def _fill_cache(self, num=None):
-        super(CachedQuerySet, self)._fill_cache(num=num)
+        super(CachedQuerySetMixIn, self)._fill_cache(num=num)
         if not self._iter and not self.from_cache and self.cache_queryset_enable:
             qs_prepared_for_cache = self._prepare_queryset_for_cache(self._result_cache)
             cache.set(self.query_key(), qs_prepared_for_cache, self.cache_timeout)
             cache.set_many(dict([(obj.cache_key, obj) \
                 for obj in self._result_cache]), self.cache_timeout)
+
+
+class CachedQuerySet(CachedQuerySetMixIn, QuerySet):
+    """
+    Extends the QuerySet object and caches results via CACHE_BACKEND.
+    """
+    pass

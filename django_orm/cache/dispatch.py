@@ -4,10 +4,13 @@ from django_orm.manager import Manager
 from django.conf import settings
 from django.core.cache import cache
 
+import logging; log = logging.getLogger('orm.cache')
+
 DEFAULT_CACHE_TIMEOUT = getattr(settings, 'ORM_CACHE_DEFAULT_TIMEOUT', 60)
 DEFAULT_CACHE_ENABLED = getattr(settings, 'ORM_CACHE_DEFAULT_ENABLED', False)
 
 def ensure_default_manager(sender, **kwargs):
+
     options = getattr(sender, '_options', None)
     options_are_none  = False
     options_add_manager = False
@@ -26,7 +29,10 @@ def ensure_default_manager(sender, **kwargs):
         options['manager'] = False
 
     if not options_add_manager:
+        log.info("Skiping model setting %s", sender.__name__)
         return
+    else:
+        log.info("Enabled manger on model %s", sender.__name__)
 
     sender.add_to_class('objects', Manager()) 
 
@@ -52,3 +58,5 @@ signals.class_prepared.connect(ensure_default_manager)
 
 def invalidate_object(instance, **kwargs):
     cache.delete(instance.cache_key)
+    log.info("Invalidating: %s(%s)", instance.__class__.__name__,
+        instance.id)
