@@ -221,6 +221,9 @@ class CachedQuerySet(CachedQuerySetMixIn, QuerySet):
         return super(CachedQuerySetMixIn, self).iterator()
 
     def fetch_by_id(self):
+        """ TODO:
+            implement lazy fetching of objects.
+        """
         vals = self.values_list('pk', *self.query.extra.keys())
 
         ids = [val[0] for val in vals]
