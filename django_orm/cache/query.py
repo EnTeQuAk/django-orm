@@ -21,6 +21,7 @@ class CachedQuerySetMixIn(object):
     cache_object_enable = False
     cache_queryset_enable = False
     cache_fetch_by_id = False
+    cache_fetch_by_id_queryset = False
 
 
     def __init__(self, *args, **kwargs):
@@ -47,6 +48,7 @@ class CachedQuerySetMixIn(object):
         qs.cache_queryset_enable = self.cache_queryset_enable
         qs.cache_timeout = self.cache_timeout
         qs.cache_fetch_by_id = self.cache_fetch_by_id
+        qs.cache_fetch_by_id_queryset = self.cache_fetch_by_id_queryset
         return qs
 
     def cache(self, timeout=None):
@@ -59,9 +61,10 @@ class CachedQuerySetMixIn(object):
         qs.cache_timeout = timeout
         return qs
 
-    def byid(self):
+    def byid(self, cache_qs=False):
         qs = self._clone()
         qs.cache_fetch_by_id = True
+        qs.cache_fetch_by_id_queryset = cache_qs
         return qs
 
     def get(self, *args, **kwargs):
@@ -174,10 +177,13 @@ class CachedQuerySetMixIn(object):
         if not self.cache_queryset_enable:
             return super(CachedQuerySetMixIn, self)._result_iter()
 
+        if not self.cache_fetch_by_id_queryset:
+            return super(CachedQuerySetMixIn, self)._result_iter()
+
         from django.db.models.sql import query
         try:
             cached_qs = cache.get(self.query_key())
-            if cached_qs: 
+            if cached_qs:
                 results = self._get_queryset_from_cache(cached_qs)
                 self._result_cache = results
                 self.from_cache = True
@@ -193,6 +199,8 @@ class CachedQuerySetMixIn(object):
 
 
 class CachedQuerySet(CachedQuerySetMixIn, QuerySet):
+    """ Main subclass of QuerySet that implements cache subsystem. """
+
     def _fill_cache(self, num=None):
         super(CachedQuerySet, self)._fill_cache(num=num)
         if not self._iter and not self.from_cache and self.cache_queryset_enable:
@@ -213,7 +221,6 @@ class CachedQuerySet(CachedQuerySetMixIn, QuerySet):
             raise TypeError("'flat' is not valid when values_list is called with more than one field.")
         return self._clone(klass=CachedValuesListQuerySet, setup=True, flat=flat,
             _fields=fields)
-
 
     def iterator(self):
         if self.cache_fetch_by_id:
