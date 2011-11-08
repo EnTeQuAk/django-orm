@@ -15,6 +15,10 @@ class Person(models.Model):
         search_field = 'search_index',
     )
 
+    _options = {
+        "manager": False,
+    }
+
     def __unicode__(self):
         return self.name
 
