@@ -23,6 +23,9 @@ class Manager(models.Manager):
     def cache(self, *args, **kwargs):
         return self.get_query_set().cache(*args, **kwargs)
 
+    def no_cache(self, *args, **kwargs):
+        return self.get_query_set().no_cache(*args, **kwargs)
+
     def array_slice(self, attr, x, y, **params):
         """ Get subarray from some array field. Only for postgresql vendor. """
         return self.filter(**params).array_slice(attr, x, y)
@@ -30,3 +33,8 @@ class Manager(models.Manager):
     def array_length(self, attr, **params):
         """Get length from some array field. Only for postgresql vendor. """
         return self.filter(**params).array_length(attr)
+
+    def contribute_to_class(self, model, name):
+        if not getattr(model, '_orm_manager', None):
+            model._orm_manager = self
+        super(Manager, self).contribute_to_class(model, name)

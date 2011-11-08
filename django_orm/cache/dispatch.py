@@ -59,6 +59,14 @@ def ensure_default_manager(sender, **kwargs):
 signals.class_prepared.connect(ensure_default_manager)
 
 def invalidate_object(instance, **kwargs):
-    cache.delete(instance.cache_key)
     log.info("Invalidating: %s(%s)", instance.__class__.__name__,
         instance.id)
+    cache.delete(instance.cache_key)
+
+    log.info("Searching querysets with this model...")
+    find_pattern = "*qs:default:table:%s*" % \
+        instance.__class__._meta.db_table
+    keys = cache.keys(find_pattern)
+    log.info("Found %s keys for querysets. Invalidating...", len(keys))
+    log.info("Keys: %s", str(keys))
+    cache.delete_many(keys)
