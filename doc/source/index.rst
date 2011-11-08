@@ -41,19 +41,17 @@ Generic features (All backends):
    orm-objectlock.rst
 
 
-PostgreSQL specific features:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-* HStore
-* Full Text Search
-* Unaccent
-* Server side cursors
-* Native types with full query lookups:
-
-  * Arrays
-  * Intervals
-  * Bytea
-  * Geometric
+..  PostgreSQL specific features:
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    * HStore
+    * Full Text Search
+    * Unaccent
+    * Server side cursors
+    * Native types with full query lookups:
+    * Arrays
+    * Intervals
+    * Bytea
+    * Geometric
 
 
 Database specific documentation index:

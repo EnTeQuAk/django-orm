@@ -10,7 +10,7 @@ from django_orm.cache.exceptions import CacheMissingWarning
 from django_orm.postgresql import server_side_cursors
 
 CACHE_KEY_PREFIX = getattr(settings, 'ORM_CACHE_KEY_PREFIX', 'orm.cache')
-CACHE_FETCH_BY_ID = getattr(settings, 'ORM_CACHE_FETCH_BY_ID', True)
+CACHE_FETCH_BY_ID = getattr(settings, 'ORM_CACHE_FETCH_BY_ID', False)
 
 import copy, hashlib
 import logging; log = logging.getLogger('orm.cache')
