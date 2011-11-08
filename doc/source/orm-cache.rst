@@ -22,8 +22,8 @@ assignments are flexible and can be configured through the attribute _options we
 There are also other global confuguraciones our settings can be defined but defined later.
 
 
-Simple example of model.
-^^^^^^^^^^^^^^^^^^^^^^^^
+Simple example of model
+^^^^^^^^^^^^^^^^^^^^^^^
 .. code-block:: python
 
     class TestModel(models.Model):
@@ -31,7 +31,8 @@ Simple example of model.
 
         _options = {
             'manager': True,        # automaticaly add manager to 'objects' attr
-                                    # you can change this by putting the name, instead of the True
+                                    # you can change this by putting the name, 
+                                    # instead of the True
             'cache_object': True,   # enable object cache
             'cache_queryset': True, # enable queryset cache
             'default_timeout': 200, # in seconds
