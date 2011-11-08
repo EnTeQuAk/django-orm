@@ -31,12 +31,18 @@ setup(
     maintainer_email = 'niwi@niwi.be',
     packages = [
         'django_orm.postgresql',
+        'django_orm.cache',
+        'django_orm.mysql',
+        'django_orm.fields',
+        'django_orm.sqlite3',
         'django_orm.postgresql.fts',
         'django_orm.postgresql.fields',
         'django_orm.postgresql.hstore',
         'django_orm.postgresql.geometric',
         'django_orm.backends',
         'django_orm.backends.postgresql_psycopg2',
+        'django_orm.backends.mysql',
+        'django_orm.backends.sqlite3',
     ],
     include_package_data = True,
     install_requires=[
