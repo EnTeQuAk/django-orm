@@ -37,6 +37,11 @@ test_settings = {
             'PORT': db_port,
         }
     },
+    'CACHES': {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    },
     'ROOT_URLCONF': 'tests.test_app.urls',
     'LOGGING': {
         'version': 1,
@@ -70,19 +75,23 @@ if __name__ == '__main__':
             'tests.pgcomplex_app',
             'tests.f_expression_testapp',
             'tests.unaccent_lookup_test_app',
+            'tests.ormcache_testapp',
         ]
 
     elif "mysql" in db_driver:
         test_settings['INSTALLED_APPS'] = [
+            'django_orm.cache',
             'tests.f_expression_testapp',
             'tests.unaccent_lookup_test_app',
-
+            'tests.ormcache_testapp',
         ]
 
     elif "sqlite" in db_driver:
         test_settings['INSTALLED_APPS'] = [
+            'django_orm.cache',
             'tests.f_expression_testapp',
             'tests.unaccent_lookup_test_app',
+            'tests.ormcache_testapp',
         ]
 
     if not test_args:

@@ -201,7 +201,6 @@ class CachedMixIn(object):
                 log.info("Orm cache queryset missing for %s", self.model.__name__)
 
         except query.EmptyResultSet:
-            print "empty"
             pass
 
         return super(CachedMixIn, self)._result_iter()
@@ -210,8 +209,6 @@ class CachedMixIn(object):
 
 class CachedQuerySet(CachedMixIn, QuerySet):
     """ Main subclass of QuerySet that implements cache subsystem. """
-
-
     def _fill_cache(self, num=None):
         super(CachedQuerySet, self)._fill_cache(num=num)
         if not self._iter and not self.from_cache and self.cache_queryset_enable:
@@ -246,7 +243,7 @@ class CachedQuerySet(CachedMixIn, QuerySet):
             vals = self.values_list('pk', *self.query.extra.keys())
         else:
             vals = self.no_cache().values_list('pk', *self.query.extra.keys())
-
+        
         ids = [val[0] for val in vals]
         if self.cache_object_enable:
             keys = dict((get_cache_key_for_pk(self.model, i), i)\

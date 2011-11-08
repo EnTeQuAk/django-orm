@@ -47,7 +47,10 @@ class MyQuery(Query):
     def __init__(self, model):
         super(MyQuery, self).__init__(model, where=MyWhereNode)
 
-class MyQuerySet(QuerySet):
+
+from django_orm.cache.query import CachedQuerySet
+
+class MyQuerySet(CachedQuerySet):
     def __init__(self, model=None, query=None, using=None):
         query = query or MyQuery(model)
         super(MyQuerySet, self).__init__(model=model, query=query, using=using)

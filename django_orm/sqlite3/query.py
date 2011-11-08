@@ -46,8 +46,9 @@ class SqliteQuery(Query):
     def __init__(self, model):
         super(SqliteQuery, self).__init__(model, where=SqliteWhereNode)
 
+from django_orm.cache.query import CachedQuerySet
 
-class SqliteQuerySet(QuerySet):
+class SqliteQuerySet(CachedQuerySet):
     def __init__(self, model=None, query=None, using=None):
         query = query or SqliteQuery(model)
         super(SqliteQuerySet, self).__init__(model=model, query=query, using=using)
