@@ -1,1 +1,1 @@
-from . import dispatch
+from .dispatch import *

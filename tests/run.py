@@ -63,6 +63,7 @@ if __name__ == '__main__':
     test_args = sys.argv[1:]
     if "postgresql" in db_driver:
         test_settings['INSTALLED_APPS'] = [
+            'django_orm.cache',
             'tests.hstore_app',
             'tests.aggregates_unaccent_app',
             'tests.fts_app',
@@ -75,6 +76,7 @@ if __name__ == '__main__':
         test_settings['INSTALLED_APPS'] = [
             'tests.f_expression_testapp',
             'tests.unaccent_lookup_test_app',
+
         ]
 
     elif "sqlite" in db_driver:
@@ -94,6 +96,7 @@ if __name__ == '__main__':
     sys.path.insert(0, current_path)
     if not settings.configured:
         settings.configure(**test_settings)
+        #from django_orm.cache.dispatch import *
 
     from django.test.simple import DjangoTestSuiteRunner
     runner = DjangoTestSuiteRunner(verbosity=2, interactive=True, failfast=False)

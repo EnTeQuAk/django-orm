@@ -38,3 +38,7 @@ class Manager(models.Manager):
         if not getattr(model, '_orm_manager', None):
             model._orm_manager = self
         super(Manager, self).contribute_to_class(model, name)
+
+    def clear_cache(self):
+        """Dummy method."""
+        pass
