@@ -47,4 +47,40 @@ It also has the following options to customize the operation globally on ``setti
 * ``ORM_CACHE_KEY_PREFIX`` → set some prefix for all keys used by orm cache. (default 'orm.cache')
 * ``ORM_CACHE_FETCH_BY_ID`` → flat for set other method for obtain objects. Make better use of the cache object. (default False)
 
+
+QuerySet methods reference
+--------------------------
+
+They have added new QuerySet methods that allow more detailed control over the cache.
+You then see the reference of the new methods incorporated.
+
+``cache(timeout=None)``
+^^^^^^^^^^^^^^^^^^^^^^^
+
+If the cache is disabled by default, this switch can only activate this queryset. You can 
+specify the timeout.
+
+
+``no_cache()``
+^^^^^^^^^^^^^^
+
+This parameter can disable the cache for a queryset.
+
+``byid(cache_qs=False)``
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+This parameter enables the use of another method to get the data, taking better advantage of 
+cache object, without caching the whole queryset. This will make 2 querys, one to get the ids and then another to obtain 
+the objects. In this way we use object cache is very fast and very simple to administer.
+
+This parameter enables the use of another method to get the data, taking better advantage of cache object, 
+without caching the whole queryset.
+
+This will make 2 querys, one to get the ids and then another to obtain the objects.
+In this way we use object cache is very fast and very simple to administer.
+
+You can query the first cache as well, going as the first parameter to True. Consider that this has no 
+effect postgresql because it uses database-level cursors.
+
+
 (work in progress)
