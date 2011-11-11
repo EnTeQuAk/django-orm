@@ -16,30 +16,17 @@ DEFAULT_MANAGER_ALIAS = getattr(settings, 'ORM_CACHE_DEFAULT_MANAGER_ALIAS', 'ob
 cache = get_cache()
 
 def ensure_default_manager(sender, **kwargs):
-    options = getattr(sender, '_options', None)
+    options = getattr(sender, '_options', {})
     options_are_none  = False
     options_add_manager = DEFAULT_ADD_MANAGER
     options_manager_name = DEFAULT_MANAGER_ALIAS
 
-    if options is None:
-        options = {}
-        options_are_none = True
-
     if "manager" in options:
         if options["manager"]:
-            options_add_manager = True
             if isinstance(options['manager'], (str, unicode)):
                 options_manager_name = options['manager']
-        else:
-            options_add_manager = False
     else:
         options['manager'] = False
-
-    if not options_add_manager:
-        log.info("Skiping model setting %s", sender.__name__)
-        return
-    else:
-        log.info("Enabled manger on model %s", sender.__name__)
 
     sender.add_to_class(options_manager_name, Manager())
     sender.add_to_class('_get_cache_key_for_pk', 
@@ -61,9 +48,9 @@ def ensure_default_manager(sender, **kwargs):
     
     signals.post_save.connect(invalidate_object, sender=sender)
     signals.post_delete.connect(invalidate_object, sender=sender)
-    
-    if options_are_none:
-        setattr(sender, '_options', options)
+    #sender._options = options
+    setattr(sender, '_options', options)
+
 
 signals.class_prepared.connect(ensure_default_manager)
 
