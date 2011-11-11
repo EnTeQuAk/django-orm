@@ -27,8 +27,10 @@ def ensure_default_manager(sender, **kwargs):
                 options_manager_name = options['manager']
     else:
         options['manager'] = False
+    
+    if options['manager']:
+        sender.add_to_class(options_manager_name, Manager())
 
-    sender.add_to_class(options_manager_name, Manager())
     sender.add_to_class('_get_cache_key_for_pk', 
         staticmethod(lambda x,y: get_cache_key_for_pk(x, y)))
     sender.add_to_class('cache_key', 

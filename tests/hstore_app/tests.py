@@ -169,7 +169,6 @@ class TestDictionaryField(TestCase):
 
 class TestReferencesField(TestCase):
     def setUp(self):
-        print type(RefsBag.objects)
         Ref.objects.all().delete()
         RefsBag.objects.all().delete()
 
