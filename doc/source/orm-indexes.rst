@@ -12,7 +12,8 @@ Supported backends:
 How it works:
 ^^^^^^^^^^^^^
 
-It is very simple, add the attribute ``additional_indexes`` with a list of custom indices.
+It is very simple, add the attribute ``indexes`` with a list of custom indices to ``_options`` dictionary
+attribute on a model.
 
 Example:
 
@@ -21,7 +22,9 @@ Example:
     class Person(models.Model):
         name = models.CharField(max_length=200)
 
-        additional_indexes = [
-            'CREATE INDEX person_name_idx0 ON pages USING BTREE (lower(name));',
-            'CREATE INDEX person_name_idx1 ON pages USING BTREE (lower(name) varchar_pattern_ops);',
-        ]
+        _options = {
+            'indexes':[
+                'CREATE INDEX person_name_idx0 ON pages USING BTREE (lower(name));',
+                'CREATE INDEX person_name_idx1 ON pages USING BTREE (lower(name) varchar_pattern_ops);',
+            ]
+        }
