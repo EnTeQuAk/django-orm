@@ -43,7 +43,6 @@ The other option is to install an alternative version unaccented:
 
 .. code-block:: sql
 
-    BEGIN;
     CREATE OR REPLACE FUNCTION unaccent(text) RETURNS text AS $$ 
     DECLARE input_string text := $1; 
     BEGIN 
@@ -55,4 +54,3 @@ The other option is to install an alternative version unaccented:
         input_string := translate(input_string, 'ñÑçÇ', 'nncc'); 
         return input_string; 
     END; $$ LANGUAGE plpgsql IMMUTABLE;
-    COMMIT;
