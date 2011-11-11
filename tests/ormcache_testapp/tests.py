@@ -49,14 +49,30 @@ class OrmCacheTest(TestCase):
         with self.assertNumQueries(1):
             a = list(TestModel.objects.cache().exclude(name='A'))
             a = list(TestModel.objects.cache().exclude(name='A'))
-
+    
+    @unittest.skipIf(connection.vendor != 'postgresql', "Only for postgresql")
     def test_num_querys_queryset_byid(self):
         with self.assertNumQueries(2):
             list(TestModel.objects.cache().all().byid(False))
             list(TestModel.objects.cache().all().byid(False))
             list(TestModel.objects.cache().all().byid(False))
             
+    @unittest.skipIf(connection.vendor != 'postgresql', "Only for postgresql")
     def test_num_querys_queryset_byid_cachedfirst(self):
+        with self.assertNumQueries(2):
+            list(TestModel.objects.cache().all().byid(True))
+            list(TestModel.objects.cache().all().byid(True))
+
+
+    @unittest.skipIf(connection.vendor == 'postgresql', "Only for mysql and sqlite")
+    def test_num_querys_queryset_byid_generic(self):
+        with self.assertNumQueries(2):
+            list(TestModel.objects.cache().all().byid(False))
+            list(TestModel.objects.cache().all().byid(False))
+            list(TestModel.objects.cache().all().byid(False))
+            
+    @unittest.skipIf(connection.vendor == 'postgresql', "Only for mysql and sqlite")
+    def test_num_querys_queryset_byid_cachedfirst_generic(self):
         with self.assertNumQueries(2):
             list(TestModel.objects.cache().all().byid(True))
             list(TestModel.objects.cache().all().byid(True))
