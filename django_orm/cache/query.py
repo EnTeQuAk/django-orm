@@ -236,9 +236,6 @@ class CachedQuerySet(CachedMixIn, QuerySet):
         return super(CachedMixIn, self).iterator()
 
     def fetch_by_id(self):
-        """ TODO:
-            implement lazy fetching of objects.
-        """
         if self.cache_fetch_by_id_queryset and self.cache_queryset_enable:
             vals = self.values_list('pk', *self.query.extra.keys())
         else:
@@ -246,19 +243,16 @@ class CachedQuerySet(CachedMixIn, QuerySet):
         
         ids = [val[0] for val in vals]
         if self.cache_object_enable:
-            keys = dict((get_cache_key_for_pk(self.model, i), i)\
-                for i in ids)
-            cached = dict((k, v) for k, v in cache.get_many(keys).items()\
-                if v is not None)
-            
-            missed = [pk for key, pk in keys.items() if key not in cached]
+            keys = dict((get_cache_key_for_pk(self.model, i), i) for i in ids)
+            cached = dict((k, v) for k, v in cache.get_many(keys).items() if v is not None)
+            missed = [pk for key, pk in keys.iteritems() if key not in cached]
+            new = {}
+
             if missed:
                 objects = self.model._default_manager.filter(pk__in=missed)
                 new = dict((get_cache_key_for_pk(self.model, o.pk), o) \
-                    for o in objects)
+                                                        for o in objects)
                 cache.set_many(new)
-            else:
-                new = {}
 
             objects = dict((o.pk, o) for o in cached.values() + new.values())
             for pk in ids:
