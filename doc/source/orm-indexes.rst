@@ -12,8 +12,8 @@ Supported backends:
 How it works:
 ^^^^^^^^^^^^^
 
-It is very simple, add the attribute ``indexes`` with a list of custom indices to ``_options`` dictionary
-attribute on a model.
+It is very simple, add the attribute ``indexes`` with a list of custom indices to ``OrmMeta`` class defined
+on a model.
 
 Example:
 
@@ -22,11 +22,8 @@ Example:
     class Person(models.Model):
         name = models.CharField(max_length=200)
 
-        _options = {
-            'indexes':[
+        class OrmMeta:
+            indexes = [
                 'CREATE INDEX person_name_idx0 ON pages USING BTREE (lower(name));',
                 'CREATE INDEX person_name_idx1 ON pages USING BTREE (lower(name) varchar_pattern_ops);',
             ]
-        }
-
-
