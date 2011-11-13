@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.utils.encoding import force_unicode
-from django.db import models
+from django.db import models, connections
 
 class SearchManagerMixIn(object):
     vector_field = None
@@ -33,8 +33,11 @@ class SearchManagerMixIn(object):
         if not config:
             config = self.config
         f = self.model._meta.get_field(field)
+
+        connection = connections[self.db]
+        qn = connection.ops.quote_name
         sql_template = "setweight(to_tsvector('%s', coalesce(unaccent(%s), '')), '%s')"
-        return sql_template % (config, f.column, weight)
+        return sql_template % (config, qn(f.column), weight)
 
     def update_index(self, pk=None, config=None):
         sql_instances = []
@@ -58,9 +61,8 @@ class SearchManagerMixIn(object):
         
         sql = """UPDATE "%s" SET "%s" = %s%s""" % \
             (self.model._meta.db_table, self.vector_field, vector_sql, where_sql)
-    
-        # FIXME
-        from django.db import connection
+        
+        connection = connections[self.db]
         cursor = connection.cursor()
         cursor.execute(sql)
         cursor.execute("COMMIT;")

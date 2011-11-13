@@ -15,7 +15,7 @@ Currently these classes are implemented:
 `django_orm.postgresql.fts.fields.VectorField`
     An tsvector index field which stores converted text into special format.
 
-`django_orm.postgresql.fts.manager.SearchManager`
+`django_orm.manager import FTSManager`
     Django manager that contains helper methods for search and re/genereate indexes.
 
 
@@ -26,7 +26,7 @@ To use it, you will need to add a new field and modifying one or the other metho
 
 .. code-block:: python
     
-    from django_orm.postgresql.fts.manager import SearchManager
+    from django_orm.manager import FTSManager as SearchManager
     from django_orm.postgresql.fts.fields import VectorField
     from django.db import models
 
@@ -44,8 +44,8 @@ To use it, you will need to add a new field and modifying one or the other metho
 
         def save(self, *args, **kwargs):
             super(Page, self).save(*args, **kwargs)
-            if hasattr(self, '_search_manager'):
-                self._search_manager.update_index(pk=self.pk)
+            if hasattr(self, '_orm_manager'):
+                self._orm_manager.update_index(pk=self.pk)
 
 
 Notes on SearchManager usage:
