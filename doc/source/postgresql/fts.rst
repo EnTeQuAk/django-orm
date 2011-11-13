@@ -48,13 +48,12 @@ To use it, you will need to add a new field and modifying one or the other metho
                 self._orm_manager.update_index(pk=self.pk)
 
 
-Notes on SearchManager usage:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Usage examples:
+^^^^^^^^^^^^^^^
 
 - The config parameter is optional and defaults to 'pg_catalog.english'.
 - The fields parameter is optional. If a list of tuples, you can specify the ranking of each field, if it is None, it gets 'A' as the default.
 - It can also be a simple list of fields, and the ranking will be selected by default. If the field is empty, the index was applied to all fields CharField and TextField.
-
 
 To search, use the `search` method of the manager. The current version, the method used by default unaccented, so ignore the accents and searches are case insencitive.
 
@@ -64,6 +63,40 @@ To search, use the `search` method of the manager. The current version, the meth
     [<Page: Page: Home page>]
     >>> Page.objects.search("about | documentation | django | home")
     [<Page: Page: Home page>, <Page: Page: About>, <Page: Page: Navigation>]
+
+You can also use the lookup query on the index field for more advanced searches:
+
+.. code-block:: python
+
+    >>> Page.objects.filter(search_index__query='Ruby | python')
+    [<Page: Page object>, <Page: Page object>]
+    >>> Page.objects.filter(search_index__query='Ruby | python', name__iunaccent='Ruby')
+    [<Page: Page object>]
+    >>> Page.objects.filter(search_index__query=('Ruby | python', 'pg_catalog.spanish'))
+    [<Page: Page object>, <Page: Page object>]
+
+
+This generates these SQL statements:
+
+.. code-block:: sql
+
+    SELECT "page"."id", "page"."name", "page"."desc", "page"."search_index" 
+    FROM "page" 
+    WHERE "page"."search_index" @@ to_tsquery('pg_catalog.english', unaccent('Ruby | python')) LIMIT 21;
+
+    SELECT "page"."id", "page"."name", "page"."desc", "page"."search_index" 
+    FROM "page" 
+    WHERE ("page"."search_index" @@ to_tsquery('pg_catalog.english', unaccent('Ruby | python')) 
+        AND lower(unaccent("page"."name")) LIKE lower(unaccent('%Ruby%'))) LIMIT 21;
+
+    SELECT "page"."id", "page"."name", "page"."desc", "page"."search_index" 
+    FROM "page" 
+    WHERE "page"."search_index" @@ to_tsquery('pg_catalog.spanish', unaccent('Ruby | python')) LIMIT 21;
+
+
+
+General notes:
+^^^^^^^^^^^^^^
 
 You must ensure you have installed the extension `unaccent`:
 

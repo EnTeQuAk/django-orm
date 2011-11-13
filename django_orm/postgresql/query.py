@@ -7,6 +7,7 @@ from django.db.models.sql.datastructures import EmptyResultSet
 from django.db.models.sql.query import Query
 from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
+from django.utils.encoding import force_unicode
 
 try:
     from django.db.models.sql.where import QueryWrapper # django <= 1.3
@@ -15,6 +16,7 @@ except ImportError:
 
 from django_orm.postgresql.constants import QUERY_TERMS
 from django_orm.postgresql.hstore.query import select_query, update_query
+from django_orm.cache.query import CachedQuerySet
 
 
 class PgWhereNode(WhereNode):
@@ -22,9 +24,6 @@ class PgWhereNode(WhereNode):
         lvalue, lookup_type, value_annot, param = child
         kwargs = {'connection': connection} if VERSION[:2] >= (1, 3) else {}
 
-        #if isinstance(param, (list, tuple)) and len(param) == 0:
-        #    raise ValueError('invalid value')
-        
         if not lvalue.field:
             return super(PgWhereNode, self).make_atom(child, qn, connection)
 
@@ -159,7 +158,6 @@ class PgWhereNode(WhereNode):
 
         elif lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') \
                 and "varchar" in db_type:
-
             try:
                 lvalue, params = lvalue.process(lookup_type, param, connection)
             except EmptyShortCircuit:
@@ -174,6 +172,27 @@ class PgWhereNode(WhereNode):
             else:
                 return super(PgWhereNode, self).make_atom(child, qn, connection)
 
+        elif lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') \
+            and db_type == 'tsvector':
+
+            try:
+                lvalue, params = lvalue.process(lookup_type, param, connection)
+            except EmptyShortCircuit:
+                raise EmptyResultSet
+            
+            field = self.sql_for_columns(lvalue, qn, connection)
+
+            if isinstance(param, (list, tuple)):
+                query, config = param
+            else:
+                query, config = param, 'pg_catalog.english'
+
+            if lookup_type == 'query':
+                return ("%s @@ to_tsquery('%s', unaccent('%s'))" % \
+                    (field, config, force_unicode(query).replace("'","''")), [])
+            else:
+                raise TypeError('invalid lookup type')
+
         return super(PgWhereNode, self).make_atom(child, qn, connection)
 
 
@@ -181,9 +200,6 @@ class PgQuery(Query):
     query_terms = QUERY_TERMS
     def __init__(self, model):
         super(PgQuery, self).__init__(model, where=PgWhereNode)
-
-
-from django_orm.cache.query import CachedQuerySet
 
 
 class PgQuerySet(CachedQuerySet):
