@@ -29,7 +29,9 @@ class CachedMixIn(object):
         self.cache_key_prefix = CACHE_KEY_PREFIX
         super(CachedMixIn, self).__init__(*args, **kwargs)
 
-        options = getattr(self.model, '_options')
+        orm_meta = getattr(self.model, '_orm_meta')
+        options = getattr(orm_meta, 'options')
+
         self.cache_object_enable = options['cache_object']
         self.cache_queryset_enable = options['cache_queryset']
         self.cache_timeout = options['default_timeout']

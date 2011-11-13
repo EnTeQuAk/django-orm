@@ -2,9 +2,12 @@
 
 from django.utils.encoding import force_unicode
 from django.db import models, connections, connection
-import logging; log = logging.getLogger('orm.cache')
-from django_orm.postgresql.fts.mixin import SearchManagerMixIn
+from django.db.models import signals
 
+from django_orm.postgresql.fts.mixin import SearchManagerMixIn
+from django_orm.cache.invalidator import invalidate_object
+
+import logging; log = logging.getLogger('orm.cache')
 
 class ManagerMixIn(object):
     def get_query_set(self):
@@ -41,6 +44,8 @@ class ManagerMixIn(object):
         if not getattr(model, '_orm_manager', None):
             model._orm_manager = self
 
+        signals.post_save.connect(invalidate_object, sender=model)
+        signals.post_delete.connect(invalidate_object, sender=model)
         super(ManagerMixIn, self).contribute_to_class(model, name)
 
     def clear_cache(self):
@@ -55,3 +60,6 @@ class Manager(ManagerMixIn, models.Manager):
 class FTSManager(SearchManagerMixIn, ManagerMixIn, models.Manager):
     """ Manager with postgresql full text search mixin. """
     use_for_related_fields = True
+
+
+from .dispatch import *
