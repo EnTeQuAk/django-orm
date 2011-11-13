@@ -9,16 +9,34 @@ This supports this type of cache:
 * Queryset-level cache.
 * Queryset-byid cache.
 
-(TODO complete this section)
+The **object-level** cache consists of, maintain data in memory and invalidate this if its modification.
+It is used when making querys with method 'get'. And as a weak point, is that it requires you to use at 
+least search by id or pk.
+
+The **queryset-level** cache keep in memory all the queryset with all the objects it contains.
+
+The disadvantages:
+
+ * It is necessary to evaluate fully the queryset so that it can cache.
+ * The invalidation of the queryset-cache only works with 'django-redis' as cache backend. 
+   Otherwise, if you insert a new object, the queryset not realize until it expires.
+
+To fill this gap, this mode `byid`, which in many cases it may be best solution. 
+Use two queries: first, to get the ids and the second, for the objects. In this way takes a lot more the 
+**object-level** cache.
+
+In postgresql, the first query is done with cursors database level, which gives you the advantage of not 
+using a lot of memory to store the list of ids! In other backends, you can cache the first query with a
+`True` parameter on `byid` modifier. (Example: ``YourModel.objects.all().byid(True)``)
 
 
 How to use this cache system?
 -----------------------------
 
-As a first step we must place as the first application django_orm.cache in INSTALLED_APPS list. (settings.py)
+As a first step we must place as the first application ``django_orm.cache`` in ``INSTALLED_APPS`` list. (settings.py)
+This will make it automatically add some methods to the model, which allows the use of cache. 
 
-This will make it automatically assign a manager to the model, which allows the use of cache. The automatic 
-assignments are flexible and can be configured through the attribute _options we add to the model.
+To use the cache or other characteristic of ``django-orm`` must explicitly use the Manager of ``django-orm``.
 
 There are also other global confuguraciones our settings can be defined but defined later.
 
