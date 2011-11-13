@@ -3,10 +3,10 @@
 from django.utils.encoding import force_unicode
 from django.db import models, connections, connection
 import logging; log = logging.getLogger('orm.cache')
+from django_orm.postgresql.fts.mixin import SearchManagerMixIn
 
-class Manager(models.Manager):
-    use_for_related_fields = True
 
+class ManagerMixIn(object):
     def get_query_set(self):
         connection = connections[self.db]
         if connection.vendor == 'postgresql':
@@ -19,7 +19,7 @@ class Manager(models.Manager):
             from django_orm.sqlite3.query import SqliteQuerySet
             return SqliteQuerySet(model=self.model, using=self._db)
         else:
-            return super(Manager, self).get_query_set()
+            return super(ManagerMixIn, self).get_query_set()
 
     def cache(self, *args, **kwargs):
         """ Active cache for this queryset """
@@ -41,15 +41,17 @@ class Manager(models.Manager):
         if not getattr(model, '_orm_manager', None):
             model._orm_manager = self
 
-        super(Manager, self).contribute_to_class(model, name)
+        super(ManagerMixIn, self).contribute_to_class(model, name)
 
     def clear_cache(self):
         """Dummy method."""
         pass
 
 
-from django_orm.postgresql.fts.mixin import SearchManagerMixIn
+class Manager(ManagerMixIn, models.Manager):
+    use_for_related_fields = True
 
-class FTSManager(SearchManagerMixIn, Manager):
+
+class FTSManager(SearchManagerMixIn, ManagerMixIn, models.Manager):
     """ Manager with postgresql full text search mixin. """
-    pass
+    use_for_related_fields = True
