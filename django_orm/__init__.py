@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__version__ = (2, 0, 0, 'candidate', 7)
+__version__ = (2, 0, 0, 'candidate', 8)
 
 POOLTYPE_PERSISTENT = 1
 POOLTYPE_QUEUE = 2
