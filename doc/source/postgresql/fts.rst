@@ -15,7 +15,7 @@ Currently these classes are implemented:
 `django_orm.postgresql.fts.fields.VectorField`
     An tsvector index field which stores converted text into special format.
 
-`django_orm.manager import FTSManager`
+`django_orm.manager.FTSManager`
     Django manager that contains helper methods for search and re/genereate indexes.
 
 

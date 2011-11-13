@@ -43,6 +43,7 @@ setup(
         'django_orm.backends.postgresql_psycopg2',
         'django_orm.backends.mysql',
         'django_orm.backends.sqlite3',
+        'django_orm.gis',
     ],
     include_package_data = True,
     install_requires=[
