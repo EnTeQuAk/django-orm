@@ -26,7 +26,7 @@ To use it, you will need to add a new field and modifying one or the other metho
 
 .. code-block:: python
     
-    from django_orm.manager import FTSManager as SearchManager
+    from django_orm.manager import FtsManager as SearchManager
     from django_orm.postgresql.fts.fields import VectorField
     from django.db import models
 
@@ -42,8 +42,8 @@ To use it, you will need to add a new field and modifying one or the other metho
             search_field = 'search_index'  # this is default
         )
 
-        def save(self, *args, **kwargs):
-            super(Page, self).save(*args, **kwargs)
+        def save(self):
+            super(Page, self).save()
             if hasattr(self, '_orm_manager'):
                 self._orm_manager.update_index(pk=self.pk)
 
@@ -64,3 +64,28 @@ To search, use the `search` method of the manager. The current version, the meth
     [<Page: Page: Home page>]
     >>> Page.objects.search("about | documentation | django | home")
     [<Page: Page: Home page>, <Page: Page: About>, <Page: Page: Navigation>]
+
+You must ensure you have installed the extension `unaccent`:
+
+.. code-block:: sql
+
+    CREATE EXTENSION unaccent;
+    ALTER FUNCTION unaccent(text) IMMUTABLE;
+
+
+In postgresql90 sometimes does not work as we wish, we can use one like this:
+
+
+.. code-block:: sql
+
+    CREATE OR REPLACE FUNCTION unaccent(text) RETURNS text AS $$ 
+    DECLARE input_string text := $1; 
+    BEGIN 
+        input_string := translate(input_string, 'àáâäãåāăąÀÁÂÄÃÅĀĂĄ', 'aaaaaaaaaaaaaaaaaa'); 
+        input_string := translate(input_string, 'èéêëēĕėęěÈÉÊËÊĒĔĖĘĚ', 'eeeeeeeeeeeeeeeeeee'); 
+        input_string := translate(input_string, 'ìíîïĩīĭÌÍÎÏĨĪĬ', 'iiiiiiiiiiiiii'); 
+        input_string := translate(input_string, 'òóôöõōŏőÒÓÔÖÕŌŎŐ', 'oooooooooooooooo'); 
+        input_string := translate(input_string, 'ùúûüũūŭůÙÚÛÜŨŪŬŮ', 'uuuuuuuuuuuuuuuu'); 
+        input_string := translate(input_string, 'ñÑçÇ', 'nncc'); 
+        return input_string; 
+    END; $$ LANGUAGE plpgsql IMMUTABLE;

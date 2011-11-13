@@ -51,7 +51,7 @@ class DatabaseCreation(BaseDatabaseCreation):
         
         indexes = getattr(meta, 'indexes', [])
         if not isinstance(indexes, (list, tuple)):
-            raise Exception("aditional_indexes must be a list or tuple")
+            raise Exception("indexes must be a list or tuple")
         
         for indexitem in indexes:
             if indexitem.endswith(";"):
