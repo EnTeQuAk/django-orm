@@ -17,17 +17,19 @@ The **queryset-level** cache keep in memory all the queryset with all the object
 
 The disadvantages:
 
- * It is necessary to evaluate fully the queryset so that it can cache.
- * The invalidation of the queryset-cache only works with 'django-redis' as cache backend. 
-   Otherwise, if you insert a new object, the queryset not realize until it expires.
+* It is necessary to evaluate fully the queryset so that it can cache.
+* The invalidation of the queryset-cache only works with 'django-redis' as cache backend. 
+  Otherwise, if you insert a new object, the queryset not realize until it expires.
 
-To fill this gap, this mode `byid`, which in many cases it may be best solution. 
+To fill this gap, the `byid` mode in many cases it may be best solution. 
 Use two queries: first, to get the ids and the second, for the objects. In this way takes a lot more the 
 **object-level** cache.
 
-In postgresql, the first query is done with cursors database level, which gives you the advantage of not 
-using a lot of memory to store the list of ids! In other backends, you can cache the first query with a
-`True` parameter on `byid` modifier. (Example: ``YourModel.objects.all().byid(True)``)
+In postgresql, the query is done with database-level cursors, which gives you the advantage of not 
+using a lot of memory to store the list of ids! 
+
+You can cache the first query with a `True` parameter on `byid` modifier. 
+(Example: ``YourModel.objects.all().byid(True)``)
 
 
 How to use this cache system?
@@ -99,6 +101,23 @@ In this way we use object cache is very fast and very simple to administer.
 
 You can query the first cache as well, going as the first parameter to True. Consider that this has no 
 effect postgresql because it uses database-level cursors.
+
+
+Usage examples:
+---------------
+
+Obtain one object activating cache:
+
+.. code-block::
+    
+    TestModel.objects.cache().get(pk=1)
+
+
+If caching is enabled for the model, but you want, turn it off:
+
+.. code-block::
+    
+    TestModel.objects.no_cache().get(pk=1)
 
 
 (work in progress)
