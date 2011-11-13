@@ -3,7 +3,8 @@
 from django.utils.encoding import force_unicode
 from django.db import models
 
-class SearchManager(models.Manager):
+class SearchManagerMixIn(object):
+    vector_field = None
     def __init__(self, fields=None, search_field='search_index', config='pg_catalog.english'):
         self.fields = None
         if fields is not None:
@@ -17,11 +18,10 @@ class SearchManager(models.Manager):
         self.vector_field = search_field
         self.default_weight = 'A'
         self.config = config
-        super(SearchManager, self).__init__()
+        super(SearchManagerMixIn, self).__init__()
 
     def contribute_to_class(self, cls, name):
-        setattr(cls, '_search_manager', self)
-        super(SearchManager, self).contribute_to_class(cls, name)
+        super(SearchManagerMixIn, self).contribute_to_class(cls, name)
 
     def _find_fields(self):
         fields = [f for f in self.model._meta.fields if isinstance(f,(models.CharField,models.TextField))]
@@ -58,7 +58,8 @@ class SearchManager(models.Manager):
         
         sql = """UPDATE "%s" SET "%s" = %s%s""" % \
             (self.model._meta.db_table, self.vector_field, vector_sql, where_sql)
-
+    
+        # FIXME
         from django.db import connection
         cursor = connection.cursor()
         cursor.execute(sql)

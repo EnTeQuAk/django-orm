@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from django.db import models, connections
+from django.utils.encoding import force_unicode
+from django.db import models, connections, connection
 import logging; log = logging.getLogger('orm.cache')
 
 class Manager(models.Manager):
@@ -21,9 +22,11 @@ class Manager(models.Manager):
             return super(Manager, self).get_query_set()
 
     def cache(self, *args, **kwargs):
+        """ Active cache for this queryset """
         return self.get_query_set().cache(*args, **kwargs)
 
     def no_cache(self, *args, **kwargs):
+        """ Deactive cache for this queryset. """
         return self.get_query_set().no_cache(*args, **kwargs)
 
     def array_slice(self, attr, x, y, **params):
@@ -37,8 +40,16 @@ class Manager(models.Manager):
     def contribute_to_class(self, model, name):
         if not getattr(model, '_orm_manager', None):
             model._orm_manager = self
+
         super(Manager, self).contribute_to_class(model, name)
 
     def clear_cache(self):
         """Dummy method."""
         pass
+
+
+from django_orm.postgresql.fts.mixin import SearchManagerMixIn
+
+class FTSManager(SearchManagerMixIn, Manager):
+    """ Manager with postgresql full text search mixin. """
+    pass

@@ -11,7 +11,7 @@ import logging; log = logging.getLogger('orm.cache')
 
 DEFAULT_CACHE_TIMEOUT = getattr(settings, 'ORM_CACHE_DEFAULT_TIMEOUT', 60)
 DEFAULT_CACHE_ENABLED = getattr(settings, 'ORM_CACHE_DEFAULT_ENABLED', False)
-DEFAULT_ADD_MANAGER = getattr(settings, 'ORM_CACHE_DEFAULT_ADD_MANAGER', True)
+DEFAULT_ADD_MANAGER = getattr(settings, 'ORM_CACHE_DEFAULT_ADD_MANAGER', False)
 DEFAULT_MANAGER_ALIAS = getattr(settings, 'ORM_CACHE_DEFAULT_MANAGER_ALIAS', 'objects')
 cache = get_cache()
 
@@ -26,7 +26,7 @@ def ensure_default_manager(sender, **kwargs):
             if isinstance(options['manager'], (str, unicode)):
                 options_manager_name = options['manager']
     else:
-        options['manager'] = False
+        options['manager'] = options_add_manager
     
     if options['manager']:
         sender.add_to_class(options_manager_name, Manager())
