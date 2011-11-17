@@ -17,6 +17,7 @@ import logging; log = logging.getLogger('orm.cache')
 
 cache = get_cache()
 
+
 class CachedMixIn(object):
     from_cache = False
     cache_object_enable = False
@@ -107,53 +108,21 @@ class CachedMixIn(object):
         return obj
 
     def _prepare_queryset_for_cache(self, queryset):
-        """
-        This is where the magic happens. We need to first see if our result set
-        is in the cache. If it isn't, we need to do the query and set the cache
-        to (ModelClass, (*<pks>,), (*<select_related fields>,), <n keys>).
-        """
-        # TODO: make this split up large sets of data based on an option
-        # and sets the last param, keys, to how many datasets are stored
-        # in the cache to regenerate.
-        
         keys = tuple(obj.pk for obj in queryset)
         fields = ()
-        #if self._select_related:
-        #    if not self._max_related_depth:
-        #        fields = [f.name for f in opts.fields if f.rel and not f.null]
-        #    else:
-        #        # TODO: handle depth relate lookups
-        #        fields = ()
-        #else:
-        #    fields = ()
         return (self.model, keys, fields, 1)
 
     def _get_queryset_from_cache(self, cache_object):
-        """
-        We transform the cache storage into an actual QuerySet object
-        automagickly handling the keys depth and select_related fields (again,
-        using the recursive methods of CachedQuerySetMixIn).
-        
-        We effectively would just be doing a cache.multi_get(*pks), grabbing
-        the pks for each releation, e.g. user, and then doing a
-        CachedManager.objects.filter() on them. This also then makes that
-        queryset reusable. So the question is, should that queryset have been
-        reusable? It could be invalidated by some other code which we aren't
-        tieing directly into the parent queryset so maybe we can't do the
-        objects.filter() query here and we have to do it internally.
-        """
-        # TODO: make this work for people who have, and who don't have, instance caching
         model, keys, fields, length = cache_object
-        
         results = self._get_objects_for_keys(model, keys)
-        if fields:
-            # TODO: optimize this so it's only one get_many call instead of one per select_related field
-            # XXX: this probably isn't handling depth beyond 1, didn't test even depth of 1 yet
-            for f in fields:
-                field = model._meta.get_field(f)
-                field_results = dict((r.id, r) for r in  self._get_objects_for_keys(f.rel.to, [getattr(r, field.db_column) for r in results]))
-                for r in results:
-                    setattr(r, f.name, field_results[getattr(r, field.db_column)])
+        #if fields:
+        #    # TODO: optimize this so it's only one get_many call instead of one per select_related field
+        #    # XXX: this probably isn't handling depth beyond 1, didn't test even depth of 1 yet
+        #    for f in fields:
+        #        field = model._meta.get_field(f)
+        #        field_results = dict((r.id, r) for r in  self._get_objects_for_keys(f.rel.to, [getattr(r, field.db_column) for r in results]))
+        #        for r in results:
+        #            setattr(r, f.name, field_results[getattr(r, field.db_column)])
         return results
 
     def _get_objects_for_keys(self, model, keys):
@@ -206,7 +175,6 @@ class CachedMixIn(object):
             pass
 
         return super(CachedMixIn, self)._result_iter()
-
 
 
 class CachedQuerySet(CachedMixIn, QuerySet):
@@ -275,31 +243,9 @@ class CachedValuesMixIn(object):
     cache_modifier = 'values'
 
     def _prepare_queryset_for_cache(self, queryset):
-        """
-        This is where the magic happens. We need to first see if our result set
-        is in the cache. If it isn't, we need to do the query and set the cache
-        to (ModelClass, (*<pks>,), (*<select_related fields>,), <n keys>).
-        """
-        # TODO: make this split up large sets of data based on an option
-        # and sets the last param, keys, to how many datasets are stored
-        # in the cache to regenerate.
         return (self.model, queryset, (), 1)
 
     def _get_queryset_from_cache(self, cache_object):
-        """
-        We transform the cache storage into an actual QuerySet object
-        automagickly handling the keys depth and select_related fields (again,
-        using the recursive methods of CachedQuerySetMixIn).
-        
-        We effectively would just be doing a cache.multi_get(*pks), grabbing
-        the pks for each releation, e.g. user, and then doing a
-        CachedManager.objects.filter() on them. This also then makes that
-        queryset reusable. So the question is, should that queryset have been
-        reusable? It could be invalidated by some other code which we aren't
-        tieing directly into the parent queryset so maybe we can't do the
-        objects.filter() query here and we have to do it internally.
-        """
-        # TODO: make this work for people who have, and who don't have, instance caching
         model, keys, fields, length = cache_object
         return keys
 
