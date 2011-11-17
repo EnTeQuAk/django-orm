@@ -25,7 +25,6 @@ class CachedMixIn(object):
     cache_fetch_by_id = False
     cache_fetch_by_id_queryset = False
 
-
     def __init__(self, *args, **kwargs):
         self.cache_key_prefix = CACHE_KEY_PREFIX
         super(CachedMixIn, self).__init__(*args, **kwargs)
@@ -115,6 +114,7 @@ class CachedMixIn(object):
     def _get_queryset_from_cache(self, cache_object):
         model, keys, fields, length = cache_object
         results = self._get_objects_for_keys(model, keys)
+
         #if fields:
         #    # TODO: optimize this so it's only one get_many call instead of one per select_related field
         #    # XXX: this probably isn't handling depth beyond 1, didn't test even depth of 1 yet
@@ -135,9 +135,10 @@ class CachedMixIn(object):
 
         log.info("Orm cache queryset missing objects: %s(%s)",
             self.model.__name__, missing)
+
         # We no longer need to know what the keys were so turn it into a list
         results = list(results)
-        objects = model._default_manager.filter(pk__in=missing)
+        objects = model._orm_manager.no_cache().filter(pk__in=missing)
         
         if objects:
             cache.set_many(dict([(obj.cache_key, obj) \
@@ -149,6 +150,7 @@ class CachedMixIn(object):
         cnt = len(missing) - len(objects)
         if cnt:
             raise CacheMissingWarning("%d objects missing in the database" % (cnt,))
+
         return results
 
     
@@ -156,9 +158,9 @@ class CachedMixIn(object):
         if not self.cache_queryset_enable:
             return super(CachedMixIn, self)._result_iter()
         
-        #if not self.cache_fetch_by_id_queryset:
-        #    return super(CachedMixIn, self)._result_iter()
-
+        if not self.cache_fetch_by_id_queryset:
+            return super(CachedMixIn, self)._result_iter()
+        
         from django.db.models.sql import query
         try:
             cached_qs = cache.get(self.query_key())

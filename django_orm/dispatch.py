@@ -18,6 +18,7 @@ def ensure_default_manager(sender, **kwargs):
     from django_orm.cache.utils import get_cache_key_for_pk
     from django_orm.cache.invalidator import invalidate_object
     from django_orm.manager import FTSManager as Manager
+    from django.db import models
 
     meta_orm_class = getattr(sender, 'OrmMeta', None)
     if not meta_orm_class:
@@ -39,7 +40,7 @@ def ensure_default_manager(sender, **kwargs):
             options['default_timeout'] = DEFAULT_CACHE_TIMEOUT
 
         meta_orm_obj.options = options
-
+    
     sender.add_to_class('_orm_meta', meta_orm_obj)
     if not getattr(sender, '_orm_manager', None):
         sender.add_to_class('_orm_manager', Manager())
