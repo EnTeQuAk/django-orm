@@ -11,7 +11,7 @@ class WithQuerySetNode(template.Node):
         self.extra_context = extra_context
         
     def render(self, context):
-        values = dict([(key, list(val.resolve(context))) for key, val in
+        values = dict([(key, iter(val.resolve(context))) for key, val in
             self.extra_context.iteritems()])
 
         context.update(values)

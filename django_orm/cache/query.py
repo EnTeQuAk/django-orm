@@ -153,55 +153,11 @@ class CachedMixIn(object):
 
         return results
 
-    
-    #def _result_iter(self):
-    #    if not self.cache_queryset_enable:
-    #        return super(CachedMixIn, self)._result_iter()
-
-    #    if self.cache_fetch_by_id and not self.cache_fetch_by_id_queryset:
-    #        return super(CachedMixIn, self)._result_iter()
-    #    
-    #    from django.db.models.sql import query
-    #    try:
-    #        cached_qs = cache.get(self.query_key())
-    #        if cached_qs:
-    #            results = self._get_queryset_from_cache(cached_qs)
-    #            self._result_cache = results
-    #            self.from_cache = True
-    #            self._iter = None
-    #            log.info("Orm cache queryset hit for %s", self.model.__name__)
-    #        else:
-    #            log.info("Orm cache queryset missing for %s", self.model.__name__)
-
-    #    except query.EmptyResultSet:
-    #        pass
-    #    return super(CachedMixIn, self)._result_iter()
-
-
-class CachedQuerySet(CachedMixIn, QuerySet):
-    def __iter__(self):
-        print "__iter__"
-        #if self._prefetch_related_lookups and not self._prefetch_done:
-        #    len(self)
-        if self._result_cache is None:
-            print 1, "__iter__"
-            self._iter = self.iterator()
-            self._result_cache = []
-        if self._iter:
-            print 2, "__iter__"
-            return self._result_iter()
-        print 3, "__iter__"
-        return iter(self._result_cache)
-
     def _result_iter(self):
-        print 1, "_result_iter"
         if not self.cache_queryset_enable:
-            print 2, "_result_iter"
             return super(CachedMixIn, self)._result_iter()
         
-        print 3, "_result_iter"
         if self.cache_fetch_by_id and not self.cache_fetch_by_id_queryset:
-            print 4, "_result_iter"
             return super(CachedMixIn, self)._result_iter()
         
         from django.db.models.sql import query
@@ -214,23 +170,20 @@ class CachedQuerySet(CachedMixIn, QuerySet):
                 self.from_cache = True
                 self._iter = None
 
-                print 5, "_result_iter"
                 log.info("Orm cache queryset hit for %s", self.model.__name__)
             else:
                 log.info("Orm cache queryset missing for %s", self.model.__name__)
 
         except query.EmptyResultSet:
             pass
-        print 6, "_result_iter"
         return super(CachedMixIn, self)._result_iter()
 
+    
+class CachedQuerySet(CachedMixIn, QuerySet):
     """ Main subclass of QuerySet that implements cache subsystem. """
     def _fill_cache(self, num=None):
-        print 6.1, "_fill_cache"
         super(CachedQuerySet, self)._fill_cache(num=num)
-        print 6.2, "_fill_cache"
         if not self._iter and not self.from_cache and self.cache_queryset_enable:
-            print 7, "_fill_cache"
             qs_prepared_for_cache = self._prepare_queryset_for_cache(self._result_cache)
             cache.set(self.query_key(), qs_prepared_for_cache, self.cache_timeout)
             cache.set_many(dict([(obj.cache_key, obj) \
