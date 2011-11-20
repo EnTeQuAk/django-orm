@@ -106,14 +106,14 @@ Usage examples:
 
 Obtain one object activating cache:
 
-.. code-block::
+.. code-block:: python
     
     TestModel.objects.cache().get(pk=1)
 
 
 If caching is enabled for the model, but you want, turn it off:
 
-.. code-block::
+.. code-block:: python
     
     TestModel.objects.no_cache().get(pk=1)
 
