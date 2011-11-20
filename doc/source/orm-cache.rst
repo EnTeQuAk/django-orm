@@ -125,7 +125,7 @@ For the cache to work correctly from the templates, you use the template-tag ``w
 
 Here's an example of use:
 
-.. code-block:: djangohtml
+.. code-block:: django
     
     {% load ormcache %}
 
