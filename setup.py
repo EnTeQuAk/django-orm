@@ -30,6 +30,7 @@ setup(
     maintainer = 'Andrei Antoukh',
     maintainer_email = 'niwi@niwi.be',
     packages = [
+        'django_orm',
         'django_orm.postgresql',
         'django_orm.cache',
         'django_orm.mysql',
