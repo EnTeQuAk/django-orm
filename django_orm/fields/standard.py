@@ -13,3 +13,7 @@ class CharField(BaseCharField):
         if lookup_type in ('unaccent', 'iunaccent'):
             return self.get_prep_value(value)
         return super(CharField, self).get_prep_lookup(lookup_type, value)
+
+    def get_db_prep_lookup(self, lookup_type, value, connection, prepared=False):
+        value = self.get_prep_lookup(lookup_type, value)
+        return "%%%s%%" % value

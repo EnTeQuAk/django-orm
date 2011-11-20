@@ -305,5 +305,6 @@ class GeometricFieldsTest(TestCase):
         qs = GeomModel.objects.filter(
             ph__is_open=False
         )
-        self.assertEqual(qs.count(), 1)
+        self.assertEqual(qs.count(), 2)
+        print qs.query
 

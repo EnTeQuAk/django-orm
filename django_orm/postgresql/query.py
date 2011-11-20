@@ -19,177 +19,109 @@ from django_orm.postgresql.hstore.query import select_query, update_query
 from django_orm.cache.query import CachedQuerySet
 
 
+lookups = {
+    'is_closed': lambda field, param: ('isclosed(%s) = %%s' % field, [param]),
+    'is_open': lambda field, param: ('isclosed(%s) = %%s' % field, [param]),
+    'area': lambda field, param: ('area(%s) = %%s' % field, [param]),
+    'area_gt': lambda field, param: ('area(%s) > %%s' % field, [param]),
+    'area_lt': lambda field, param: ('area(%s) < %%s' % field, [param]),
+    'area_gte': lambda field, param: ('area(%s) >= %%s' % field, [param]),
+    'area_lte': lambda field, param: ('area(%s) <= %%s' % field, [param]),
+    'diameter': lambda field, param: ('diameter(%s) = %%s' % field, [param]),
+    'diameter_gt': lambda field, param: ('diameter(%s) > %%s' % field, [param]),
+    'diameter_lt': lambda field, param: ('diameter(%s) < %%s' % field, [param]),
+    'diameter_gte': lambda field, param: ('diameter(%s) >= %%s' % field, [param]),
+    'diameter_lte': lambda field, param: ('diameter(%s) <= %%s' % field, [param]),
+    'length': lambda field, param: ('length(%s) = %%s' % field, [param]),
+    'length_gt': lambda field, param: ('length(%s) > %%s' % field, [param]),
+    'length_lt': lambda field, param: ('length(%s) < %%s' % field, [param]),
+    'length_gte': lambda field, param: ('length(%s) >= %%s' % field, [param]),
+    'length_lte': lambda field, param: ('length(%s) <= %%s' % field, [param]),
+    'width': lambda field, param: ('width(%s) = %%s' % field, [param]),
+    'width_gt': lambda field, param: ('width(%s) > %%s' % field, [param]),
+    'width_lt': lambda field, param: ('width(%s) < %%s' % field, [param]),
+    'width_gte': lambda field, param: ('width(%s) >= %%s' % field, [param]),
+    'width_lte': lambda field, param: ('width(%s) <= %%s' % field, [param]),
+    'npoints': lambda field, param: ('npoints(%s) = %%s' % field, [param]),
+    'npoints_gt': lambda field, param: ('npoints(%s) > %%s' % field, [param]),
+    'npoints_lt': lambda field, param: ('npoints(%s) < %%s' % field, [param]),
+    'npoints_gte': lambda field, param: ('npoints(%s) >= %%s' % field, [param]),
+    'npoints_lte': lambda field, param: ('npoints(%s) <= %%s' % field, [param]),
+    'overlap': lambda field, param: ('%s && %%s' % field, [param]),
+    'strictly_left_of': lambda field, param: ('%s << %%s' % field, [param]),
+    'strictly_right_of': lambda field, param: ('%s >> %%s' % field, [param]),
+    'strictly_below': lambda field, param: ('%s <<| %%s' % field, [param]),
+    'strictly_above': lambda field, param: ('%s |>> %%s' % field, [param]),
+    'notextendto_right_of': lambda field, param: ('%s &< %%s' % field, [param]),
+    'notextendto_left_of': lambda field, param: ('%s &> %%s' % field, [param]),
+    'notextend_above': lambda field, param: ('%s &<| %%s' % field, [param]),
+    'notextend_below': lambda field, param: ('%s |&> %%s' % field, [param]),
+    'intersects': lambda field, param: ('%s ?# %%s' % field, [param]),
+    'is_horizontal': lambda field, param: ('(?- %s) = %%s' % field, [param]),
+    'is_perpendicular': lambda field, param: ('%s ?-| %%s' % field, [param]),
+    'is_parallel': lambda field, param: ('%s ?|| %%s' % field, [param]),
+    'contained_in_or_on': lambda field, param: ('%s ?|| %%s' % field, [param]),
+    'contains': lambda field, param: ('%s @> %%s' % field, [param]),
+    'same_as': lambda field, param: ('%s ~= %%s' % field, [param]),
+    'indexexact': lambda field, param: ('%s[%s] = %%s' % (field, param[0]+1), [param[1]]),
+    'distinct': lambda field, param: ('%s <> %%s' % field, [param]),
+    'contains': lambda field, param, is_list: ('%s @> %%s' % field, [param]) \
+        if is_list else ('%%s = ANY(%s)' % field, [param]),
+    'containedby': lambda field, param: ('%s <@ %%s' % field, [param]),
+    'unaccent': lambda field, param: ('unaccent(%s) LIKE unaccent(%%s)' % field, [param]),
+    'iunaccent': lambda field, param: ('lower(unaccent(%s)) LIKE lower(unaccent(%%s))' %\
+        field, [param]),
+}
+
+geometric_types = ('box', 'point', 'line', 'lseg', 'path', 'polygon', 'circle')
+
 class PgWhereNode(WhereNode):
     def make_atom(self, child, qn, connection):
-        lvalue, lookup_type, value_annot, param = child
+        lvalue, lookup_type, value_annot, params_or_value = child
         kwargs = {'connection': connection} if VERSION[:2] >= (1, 3) else {}
 
-        if not lvalue.field:
-            return super(PgWhereNode, self).make_atom(child, qn, connection)
-
-        if not hasattr(lvalue.field, 'db_type'):
-            return super(PgWhereNode, self).make_atom(child, qn, connection)
-
-        db_type = lvalue.field.db_type(**kwargs)
-        if lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') \
-            and db_type in ('box', 'point', 'line', 'lseg', 'path', 'polygon', 'circle'):
-            
-            # TODO: use dict for fat lookup of lookups (?) (this makes this method
-            # more readable and more fast... make benchmarks...
-            
+        if hasattr(lvalue, 'process'):
             try:
-                lvalue, params = lvalue.process(lookup_type, param, connection)
+                lvalue, params = lvalue.process(lookup_type, params_or_value, connection)
             except EmptyShortCircuit:
                 raise EmptyResultSet
+        else:
+            params = Field().get_db_prep_lookup(lookup_type, params_or_value,
+                prepared=True, **kwargs)
 
-            field = self.sql_for_columns(lvalue, qn, connection)
-            if lookup_type == 'is_closed':
-                return ('isclosed(%s) = %%s' % field, [param])
+        model_alias, field_name, db_type = lvalue
+        field_sql = self.sql_for_columns(lvalue, qn, connection)
+        
+        if db_type in geometric_types and lookup_type in lookups:
+            return lookups[lookup_type](field_sql, params)
 
-            elif lookup_type == 'is_open':
-                return ('isopen(%s) = %%s' % field, [param])
-
-            elif lookup_type.split("_", 1)[0] in \
-                    ('area','diameter','radius','length', 'width', 'npoints'):
-
-                lookup = lookup_type.split("_", 1)
-                if len(lookup) < 2:
-                    return ('%s(%s) = %%s' % (lookup[0], field), [param])
-                elif lookup[1] == 'gt':
-                    return ('%s(%s) > %%s' % (lookup[0], field), [param])
-                elif lookup[1] == 'lt':
-                    return ('%s(%s) < %%s' % (lookup[0], field), [param])
-                elif lookup[1] == 'gte':
-                    return ('%s(%s) >= %%s' % (lookup[0], field), [param])
-                elif lookup[1] == 'lte':
-                    return ('%s(%s) <= %%s' % (lookup[0], field), [param])
-                else:
-                    raise TypeError('invalid lookup type')
-
-            elif lookup_type == 'overlap':
-                return ('%s && %%s' % field, [param])
-
-            elif lookup_type.startswith('strictly_'):
-                if lookup_type == 'strictly_left_of':
-                    return ('%s << %%s' % field, [param])
-                elif lookup_type == 'strictly_right_of':
-                    return ('%s >> %%s' % field, [param])
-                elif lookup_type == 'strictly_below':
-                    return ('%s <<| %%s' % field, [param])
-                elif lookup_type == 'strictly_above':
-                    return ('%s |>> %%s' % field, [param])
-                else:
-                    raise TypeError('invalid lookup type')
-            elif lookup_type == 'notextendto_right_of':
-                return ('%s &< %%s' % field, [param])
-            elif lookup_type == 'notextendto_left_of':
-                return ('%s &> %%s' % field, [param])
-            elif lookup_type == 'notextend_above':
-                return ('%s &<| %%s' % field, [param])
-            elif lookup_type == 'notextend_below':
-                return ('%s |&> %%s' % field, [param])
-            elif lookup_type == 'intersects':
-                return ('%s ?# %%s' % field, [param])
-            elif lookup_type == 'is_horizontal':
-                return ('(?- %s) = %%s' % field, [param])
-            elif lookup_type == 'is_perpendicular':
-                return ('%s ?-| %%s' % field, [param])
-            elif lookup_type == 'is_parallel':
-                return ('%s ?|| %%s' % field, [param])
-            elif lookup_type == 'contained_in_or_on':
-                return ('%s <@ %%s' % field, [param])
-            elif lookup_type == 'contains':
-                return ('%s @> %%s' % field, [param])
-            elif lookup_type == 'same_as':
-                return ('%s ~= %%s' % field, [param])
-            else:
-                raise TypeError('invalid lookup type')
-
-        elif lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') \
-                and '[]' in db_type:
-
-            try:
-                lvalue, params = lvalue.process(lookup_type, param, connection)
-            except EmptyShortCircuit:
-                raise EmptyResultSet
-            
-            field = self.sql_for_columns(lvalue, qn, connection)
-
-            is_list = True
-
-            # first test nonstandard lookups
-            if lookup_type == 'indexexact':
-                if len(param) == 2 and isinstance(param[0], int) \
-                    and isinstance(param[1], (int, str, unicode)):
-                    return ('%s[%s] = %%s' % (field, param[0]+1), [param[1]])
-                else:
-                    raise ValueError('invalid value')
-
-            if isinstance(param, (list, tuple)):
-                if isinstance(param[0], (str, unicode)):
-                    param = u"{%s}" % (",".join(['"%s"' % x for x in param]))
-                elif isinstance(param[0], (float, int, long)):
-                    param = u"{%s}" % (",".join(map(str, param)))
-                else:
-                    raise ValueError('invalid value')
-            else:
-                is_list = False
-
-            if lookup_type == 'distinct':
-                return ('%s <> %%s' % field, [param])
-
-            elif lookup_type == 'contains':
-                if is_list: return ('%s @> %%s' % field, [param])
-                else: return ('%%s = ANY(%s)' % field, [param])
-
-            elif lookup_type == 'containedby':
-                return ('%s <@ %%s' % field, [param])
-
-            elif lookup_type == 'overlap':
-                # Have elements in common
-                return ('%s && %%s' % field, [param])
-            
-            elif lookup_type in ('gt', 'gte', 'lt', 'lte', 'isnull', 'exact'):
-                return super(PgWhereNode, self).make_atom(child, qn, connection)
-
-            else:
-                raise TypeError('invalid lookup type')
-
-
-        elif lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') \
-                and "varchar" in db_type:
-            try:
-                lvalue, params = lvalue.process(lookup_type, param, connection)
-            except EmptyShortCircuit:
-                raise EmptyResultSet
-            
-            field = self.sql_for_columns(lvalue, qn, connection)
-
-            if lookup_type == 'unaccent':
-                return ('unaccent(%s) LIKE unaccent(%%s)' % field, ["%" + param + "%"])
-            elif lookup_type == 'iunaccent':
-                return ('lower(unaccent(%s)) LIKE lower(unaccent(%%s))' % field, ["%" + param + "%"])
+        elif '[]' in db_type:
+            params, is_list = params
+            if lookup_type == 'contains':   
+                a = lookups[lookup_type](field_sql, params, is_list)
+                return a
+            elif lookup_type in lookups:
+                return lookups[lookup_type](field_sql, params)
             else:
                 return super(PgWhereNode, self).make_atom(child, qn, connection)
 
-        elif lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') \
-            and db_type == 'tsvector':
-
-            try:
-                lvalue, params = lvalue.process(lookup_type, param, connection)
-            except EmptyShortCircuit:
-                raise EmptyResultSet
-            
-            field = self.sql_for_columns(lvalue, qn, connection)
-
-            if isinstance(param, (list, tuple)):
-                query, config = param
+        elif 'varchar' in db_type:
+            if lookup_type in ('unaccent', 'iunaccent'):
+                return lookups[lookup_type](field_sql, params)
             else:
-                query, config = param, 'pg_catalog.english'
+                return super(PgWhereNode, self).make_atom(child, qn, connection)
 
+        elif db_type == 'tsvector':
+            if isinstance(params, basestring):
+                query, config = params, 'pg_catalog.english'
+            elif isinstance(params, (list, tuple)):
+                query, config = params
+            else:
+                raise TypeError('invalid params')
+            
             if lookup_type == 'query':
                 return ("%s @@ to_tsquery('%s', unaccent('%s'))" % \
-                    (field, config, force_unicode(query).replace("'","''")), [])
+                    (field_sql, config, force_unicode(query).replace("'","''")), [])
             else:
                 raise TypeError('invalid lookup type')
 

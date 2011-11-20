@@ -35,6 +35,9 @@ class PointField(models.Field):
             return self.get_prep_value(value)
         raise TypeError("Field has invalid lookup: %s" % lookup_type)
 
+    def get_db_prep_lookup(self, lookup_type, value, connection, prepared=False):
+        return self.get_prep_lookup(lookup_type, value)
+
     def db_type(self, connection):
         return 'point'
 
@@ -59,6 +62,9 @@ class CircleField(models.Field):
         if lookup_type in geometric_lookups:
             return self.get_prep_value(value)
         raise TypeError("Field has invalid lookup: %s" % lookup_type)
+
+    def get_db_prep_lookup(self, lookup_type, value, connection, prepared=False):
+        return self.get_prep_lookup(lookup_type, value)
 
     def db_type(self, connection):
         return 'circle'
@@ -86,6 +92,9 @@ class LineField(models.Field):
             return self.get_prep_value(value)
         raise TypeError("Field has invalid lookup: %s" % lookup_type)
 
+    def get_db_prep_lookup(self, lookup_type, value, connection, prepared=False):
+        return self.get_prep_lookup(lookup_type, value)
+
     def db_type(self, connection):
         return 'line'
 
@@ -107,10 +116,12 @@ class LsegField(models.Field):
         super(LsegField, self).__init__(*args, **kwargs)
 
     def get_prep_lookup(self, lookup_type, value):
-        #fix this with correct lookup types not all
         if lookup_type in geometric_lookups:
             return self.get_prep_value(value)
         raise TypeError("Field has invalid lookup: %s" % lookup_type)
+
+    def get_db_prep_lookup(self, lookup_type, value, connection, prepared=False):
+        return self.get_prep_lookup(lookup_type, value)
 
     def db_type(self, connection):
         return 'lseg'
@@ -122,7 +133,6 @@ class LsegField(models.Field):
     def to_python(self, value):
         return value
 
-
 class BoxField(models.Field):
     __metaclass__ = models.SubfieldBase
 
@@ -133,10 +143,12 @@ class BoxField(models.Field):
         super(BoxField, self).__init__(*args, **kwargs)
 
     def get_prep_lookup(self, lookup_type, value):
-        #fix this with correct lookup types not all
         if lookup_type in geometric_lookups:
             return self.get_prep_value(value)
         raise TypeError("Field has invalid lookup: %s" % lookup_type)
+
+    def get_db_prep_lookup(self, lookup_type, value, connection, prepared=False):
+        return self.get_prep_lookup(lookup_type, value)
 
     def db_type(self, connection):
         return 'box'
@@ -159,10 +171,12 @@ class PathField(models.Field):
         super(PathField, self).__init__(*args, **kwargs)
 
     def get_prep_lookup(self, lookup_type, value):
-        #fix this with correct lookup types not all
         if lookup_type in geometric_lookups:
             return self.get_prep_value(value)
         raise TypeError("Field has invalid lookup: %s" % lookup_type)
+    
+    def get_db_prep_lookup(self, lookup_type, value, connection, prepared=False):
+        return self.get_prep_lookup(lookup_type, value)
 
     def db_type(self, connection):
         return 'path'
@@ -185,10 +199,12 @@ class PolygonField(models.Field):
         super(PolygonField, self).__init__(*args, **kwargs)
 
     def get_prep_lookup(self, lookup_type, value):
-        #fix this with correct lookup types not all
         if lookup_type in geometric_lookups:
             return self.get_prep_value(value)
         raise TypeError("Field has invalid lookup: %s" % lookup_type)
+
+    def get_db_prep_lookup(self, lookup_type, value, connection, prepared=False):
+        return self.get_prep_lookup(lookup_type, value)
 
     def db_type(self, connection):
         return 'box'
