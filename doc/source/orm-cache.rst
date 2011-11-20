@@ -35,7 +35,7 @@ You can cache the first query with a `True` parameter on `byid` modifier.
 How to use this cache system?
 -----------------------------
 
-As a first step we must place as the first application ``django_orm.cache`` in ``INSTALLED_APPS`` list. (settings.py)
+As a first step we must place as the first application ``django_orm`` in ``INSTALLED_APPS`` list. (settings.py)
 This will make it automatically add some methods to the model, which allows the use of cache. 
 
 To use the cache or other characteristic of ``django-orm`` must explicitly use the Manager of ``django-orm``.
@@ -65,11 +65,10 @@ It also has the following options to customize the operation globally on ``setti
 * ``ORM_CACHE_DEFAULT_TIMEOUT`` → integer value of default cache timeout. (default 60s)
 * ``ORM_CACHE_DEFAULT_ENABLED`` → boolean value for enable globaly cache (with 'manager': False you can make one exception)
 * ``ORM_CACHE_KEY_PREFIX`` → set some prefix for all keys used by orm cache. (default 'orm.cache')
-* ``ORM_CACHE_FETCH_BY_ID`` → flat for set other method for obtain objects. Make better use of the cache object. (default False)
 
 
-QuerySet methods reference
---------------------------
+QuerySet reference
+------------------
 
 They have added new QuerySet methods that allow more detailed control over the cache.
 You then see the reference of the new methods incorporated.
@@ -102,9 +101,8 @@ In this way we use object cache is very fast and very simple to administer.
 You can query the first cache as well, going as the first parameter to True. Consider that this has no 
 effect postgresql because it uses database-level cursors.
 
-
 Usage examples:
----------------
+^^^^^^^^^^^^^^^
 
 Obtain one object activating cache:
 
@@ -119,5 +117,26 @@ If caching is enabled for the model, but you want, turn it off:
     
     TestModel.objects.no_cache().get(pk=1)
 
+
+QuerySet usage in templates:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For the cache to work correctly from the templates, you use the template-tag ``withqs``. 
+
+Here's an example of use:
+
+.. code-block:: djangohtml
+    
+    {% load ormcache %}
+
+    {% withqs posts=mypostsqueryset photos=myphotoqueryset %}
+        {% for post in posts %}
+        <div class="post">{{ post.content }}</div>
+        {% endfor %}
+
+        {% for photo in photos %}
+        <div class="photo">{{ photo.title }}</div>
+        {% endfor %}
+    {% endwithqs %}
 
 (work in progress)
